@@ -1,0 +1,9 @@
+#terrainMainPanel{
+    -fx-background-image: url("../images/grass.jpg");
+    -fx-background-repeat: repeat;
+    -fx-background-position: 0px 0px;
+    -fx-min-width: 1000;
+    -fx-max-width: 1000;
+    -fx-min-height: 600;
+    -fx-max-height: 600;
+}
