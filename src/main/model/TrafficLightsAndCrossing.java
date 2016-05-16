@@ -1,5 +1,6 @@
 package main.model;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -64,40 +65,47 @@ public class TrafficLightsAndCrossing {
     }
 
     //we need one second to let all cars break before letting the others to start
+    //TODO: http://stackoverflow.com/questions/20497845/constantly-update-ui-in-java-fx-worker-thread
     public void changeLights() {
-        try {
-            new Thread(new Task<Integer>() {
-                @Override
-                protected Integer call() throws Exception {
-                    if (horizontalGreen) {
-                        horizontalGreen = false;
-                        setLights(redLight, yellowLight);
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } finally {
-                            setLights(greenLight, redLight);
-                            verticalGreen = true;
-                        }
-                    } else {
-                        verticalGreen = false;
-                        setLights(yellowLight, redLight);
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } finally {
-                            setLights(redLight, greenLight);
-                            horizontalGreen = true;
+        Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (horizontalGreen) {
+                            horizontalGreen = false;
+                            setLights(redLight, yellowLight);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } finally {
+                                //TODO set flag here and then call another runnable to handle this actions from FINALLY
+                                setLights(greenLight, redLight);
+                                verticalGreen = true;
+                            }
+                        } else {
+                            verticalGreen = false;
+                            setLights(yellowLight, redLight);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } finally {
+                                setLights(redLight, greenLight);
+                                horizontalGreen = true;
+                            }
                         }
                     }
-                    return 0;
-                }
-            }).run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                });
+                return null;
+            }
+        };
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.run();
     }
 
     public Pane getCrossingGraphics() {

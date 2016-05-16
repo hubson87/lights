@@ -44,7 +44,7 @@ public class TerrainController implements Initializable {
         for (TrafficLightsAndCrossing crossing : simulationController.getCrossings()) {
             terrainMainPanel.getChildren().add(crossing.getCrossingGraphics());
         }
-        /*simulationController.getCrossings().get(0).changeLights();*/
+        simulationController.getCrossings().get(0).changeLights();
     }
 
 }
