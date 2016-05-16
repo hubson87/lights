@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<GridPane fx:controller="main.controllers.Controller"
+<GridPane fx:controller="main.controllers.MainController"
           xmlns:fx="http://javafx.com/fxml" alignment="TOP_LEFT" hgap="10" vgap="10">
     <Label text="Traffic belts vertical 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
     <TextField text="0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
