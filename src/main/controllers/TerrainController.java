@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import main.model.TrafficBelt;
+import main.model.TrafficLightsAndCrossing;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -39,6 +40,11 @@ public class TerrainController implements Initializable {
         for (TrafficBelt belt : simulationController.getAllBelts()) {
             terrainMainPanel.getChildren().add(belt.getBeltGraphics());
         }
+
+        for (TrafficLightsAndCrossing crossing : simulationController.getCrossings()) {
+            terrainMainPanel.getChildren().add(crossing.getCrossingGraphics());
+        }
+        /*simulationController.getCrossings().get(0).changeLights();*/
     }
 
 }

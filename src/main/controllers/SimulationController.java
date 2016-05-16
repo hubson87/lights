@@ -1,6 +1,7 @@
 package main.controllers;
 
 import main.model.TrafficBelt;
+import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
 
 import java.util.ArrayList;
@@ -10,12 +11,43 @@ public class SimulationController {
     private List<TrafficBelt> verticalBelts;
     private List<TrafficBelt> verticalBelts2;
     private List<TrafficBelt> horizontalBelts;
+    private List<TrafficLightsAndCrossing> crossings;
 
     public SimulationController(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                 int carsLimit, int width, int height) {
+
         verticalBelts = initVerticalBelts(verticalBeltsCount, height, width, carsLimit, width / 4);
         verticalBelts2 = initVerticalBelts(verticalBelts2Count, height, width, carsLimit, 3 * width / 4);
         horizontalBelts = initHorizontalBelts(horizontalBeltsCount, height, width, carsLimit);
+        crossings = initCrossings(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount, height, width);    //first and the second crossing
+        for (TrafficBelt belt : horizontalBelts) {
+            belt.getCrossingAndLights().add(crossings.get(0));
+            belt.getCrossingAndLights().add(crossings.get(1));
+        }
+        for (TrafficBelt belt : verticalBelts) {
+            belt.getCrossingAndLights().add(crossings.get(0));
+        }
+        for (TrafficBelt belt : verticalBelts2) {
+            belt.getCrossingAndLights().add(crossings.get(1));
+        }
+
+    }
+
+    private List<TrafficLightsAndCrossing> initCrossings(int verticalBeltsCount, int verticalBelts2Count,
+                                                         int horizontalBeltsCount, int windowHeight, int windowWidth) {
+        List<TrafficLightsAndCrossing> res = new ArrayList<TrafficLightsAndCrossing>();
+        int yFrom =  windowHeight / 2 - horizontalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
+        int yTo =  windowHeight / 2 + horizontalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
+
+        int x1From = windowWidth / 4 - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
+        int x1To = windowWidth / 4 + verticalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
+
+        int x2From = 3 * windowWidth / 4 - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
+        int x2To = 3 * windowWidth / 4 + verticalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
+
+        res.add(new TrafficLightsAndCrossing(x1From, x1To, yFrom, yTo));
+        res.add(new TrafficLightsAndCrossing(x2From, x2To, yFrom, yTo));
+        return res;
     }
 
     private List<TrafficBelt> initVerticalBelts(int verticalBeltsCount, int windowHeight, int windowWidth, int carsLimit, int offset) {
@@ -58,5 +90,9 @@ public class SimulationController {
         res.addAll(verticalBelts);
         res.addAll(verticalBelts2);
         return res;
+    }
+
+    public List<TrafficLightsAndCrossing> getCrossings() {
+        return crossings;
     }
 }

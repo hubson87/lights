@@ -30,6 +30,13 @@ public class TrafficBelt {
                 (beltDirection == DirectionEnum.DOWN ? yPos : yPos + height);
     }
 
+    public List<TrafficLightsAndCrossing> getCrossingAndLights() {
+        if (crossingAndLights == null) {
+            crossingAndLights = new ArrayList<TrafficLightsAndCrossing>();
+        }
+        return crossingAndLights;
+    }
+
     public boolean addCar(int maxSpeed) {
         if (containingCars.size() >= carsLimit) {
             return false;
