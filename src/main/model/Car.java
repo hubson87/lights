@@ -1,12 +1,13 @@
 package main.model;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import main.model.enums.DirectionEnum;
 
 import java.awt.*;
 
 public class Car {
-    Image image;
+    ImageView imageView;
     int maxSpeed;
     int speed;
     Point position;
@@ -14,15 +15,24 @@ public class Car {
     double acceleration;
 
     public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos) {
-        image = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/car.png"));
         if (direction == null) {
             throw new IllegalArgumentException("Direction must be defined");
         }
+        imageView = loadImgAndResize();
         yDirection = direction == DirectionEnum.UP ? 1 : (direction == DirectionEnum.DOWN ? -1 : 0);
         xDirection = direction == DirectionEnum.RIGHT ? 1 : (direction == DirectionEnum.LEFT ? -1 : 0);
         this.position = new Point(beltXPos, beltYPos);
         this.speed = maxSpeed / 2;
         this.acceleration = 1.5;
+    }
+
+    private ImageView loadImgAndResize() {
+        Image carImg = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/car.png"));
+        imageView = new ImageView(carImg);
+        int maxSize = TrafficBelt.BELT_HEIGHT - 2;
+        double scale = ((double)maxSize) / (carImg.getHeight() > carImg.getWidth() ? carImg.getHeight() : carImg.getWidth());
+        imageView.resize(carImg.getWidth() * scale, carImg.getHeight() * scale);
+        return imageView;
     }
 
     public Point go(){
@@ -52,7 +62,7 @@ public class Car {
         return (int)res;
     }
 
-    public Image getImage() {
-        return image;
+    public ImageView getImageView() {
+        return imageView;
     }
 }
