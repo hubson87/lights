@@ -1,5 +1,6 @@
 package main.controllers;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -44,7 +45,16 @@ public class TerrainController implements Initializable {
         for (TrafficLightsAndCrossing crossing : simulationController.getCrossings()) {
             terrainMainPanel.getChildren().add(crossing.getCrossingGraphics());
         }
-        simulationController.getCrossings().get(0).changeLights();
+
+        TasksHandler.runTask(new Task() {
+            @Override
+            protected Object call() throws Exception {
+                simulationController.getCrossings().get(0).changeLights();
+                Thread.sleep(4000);
+                simulationController.getCrossings().get(0).changeLights();
+                return null;
+            }
+        });
     }
 
 }

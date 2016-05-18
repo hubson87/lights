@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import main.controllers.TasksHandler;
 
 public class TrafficLightsAndCrossing {
     private ImageView lightUp, lightDown;
@@ -67,56 +68,54 @@ public class TrafficLightsAndCrossing {
     //we need one second to let all cars break before letting the others to start
     //TODO: http://stackoverflow.com/questions/20497845/constantly-update-ui-in-java-fx-worker-thread
     public void changeLights() {
-        Task task = new Task() {
+        TasksHandler.runTask(new Task() {
             @Override
             protected Object call() throws Exception {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (horizontalGreen) {
-                            horizontalGreen = false;
-                            setLights(redLight, yellowLight);
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } finally {
-                                //TODO set flag here and then call another runnable to handle this actions from FINALLY
-                                setLights(greenLight, redLight);
-                                verticalGreen = true;
-                            }
-                        } else {
-                            verticalGreen = false;
-                            setLights(yellowLight, redLight);
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } finally {
-                                setLights(redLight, greenLight);
-                                horizontalGreen = true;
-                            }
-                        }
+                Platform.runLater(() -> {
+                    if (horizontalGreen) {
+                        horizontalGreen = false;
+                        setLights(redLight, yellowLight);
+                        switchLightsInThread(greenLight, redLight, true);
+                    } else {
+                        verticalGreen = false;
+                        setLights(yellowLight, redLight);
+                        switchLightsInThread(redLight, greenLight, false);
                     }
                 });
                 return null;
             }
-        };
+        });
+    }
 
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.run();
+    private void switchLightsInThread(Image vertical, Image horizontal, boolean newVerticalGreenValue) {
+        TasksHandler.runTask(new Task() {
+            @Override
+            protected Object call() throws Exception {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        Platform.runLater(() -> {
+                            setLights(vertical, horizontal);
+                            verticalGreen = newVerticalGreenValue;
+                            horizontalGreen = !newVerticalGreenValue;
+                        });
+                    }
+                return null;
+            }
+        });
     }
 
     public Pane getCrossingGraphics() {
         return crossingCoordinates;
     }
 
-    public boolean isHorizontalGreen() {
+    public synchronized boolean isHorizontalGreen() {
         return horizontalGreen;
     }
 
-    public boolean isVerticalGreen() {
+    public synchronized boolean isVerticalGreen() {
         return verticalGreen;
     }
 }
