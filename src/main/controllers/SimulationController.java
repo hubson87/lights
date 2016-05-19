@@ -1,11 +1,16 @@
 package main.controllers;
 
+import javafx.application.Platform;
+import javafx.scene.image.ImageView;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SimulationController {
     private List<TrafficBelt> verticalBelts;
@@ -31,6 +36,34 @@ public class SimulationController {
             belt.getCrossingAndLights().add(crossings.get(1));
         }
 
+    }
+
+    public void startSimulation(final int carsOnBeltLimit, final TerrainController terrainController) {
+        int simulationTimeInSecs = 60;
+        final int taskPeriod = 30;
+        final double[] interval = { (double) simulationTimeInSecs * 1000.0 / (double) taskPeriod };
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                simulationIteration(carsOnBeltLimit, terrainController);
+                if (--interval[0] <= 1) {
+                    timer.cancel();
+                }
+            }
+        }, 1000, taskPeriod);
+    }
+
+    private void simulationIteration(final int carsOnBeltLimit, final TerrainController terrainController) {
+        Platform.runLater(() -> {
+            for (TrafficBelt belt : SimulationController.this.getAllBelts()) {
+                terrainController.removeCarsFromStage(belt.moveCars());
+                ImageView res = belt.addCar(new Random().nextInt(20));
+                if (res != null) {
+                    terrainController.addCarOnStage(res);
+                }
+            }
+        });
     }
 
     private List<TrafficLightsAndCrossing> initCrossings(int verticalBeltsCount, int verticalBelts2Count,

@@ -1,16 +1,19 @@
 package main.controllers;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class TerrainController implements Initializable {
@@ -19,22 +22,38 @@ public class TerrainController implements Initializable {
     @FXML
     Button startSimulationButton;
 
+    private int carsOnBeltLimit;
     private SimulationController simulationController;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        startSimulationButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (simulationController == null) {
-                    return;
-                }
+        startSimulationButton.setOnAction(event -> {
+            if (simulationController == null) {
+                return;
             }
+            TasksHandler.runTask(new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    simulationController.startSimulation(carsOnBeltLimit, TerrainController.this);
+                    return null;
+                }
+            });
         });
+    }
+
+    public void addCarOnStage(ImageView car) {
+        terrainMainPanel.getChildren().add(car);
+    }
+
+    public void removeCarsFromStage(List<ImageView> cars) {
+        if (cars != null && !cars.isEmpty()) {
+            Platform.runLater(() -> terrainMainPanel.getChildren().removeAll(cars));
+        }
     }
 
     public void initControllerValues(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                     int carsLimit, int width, int height) {
+        carsOnBeltLimit = carsLimit;
         simulationController = new SimulationController(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
                 carsLimit, width, height);
 
@@ -45,16 +64,6 @@ public class TerrainController implements Initializable {
         for (TrafficLightsAndCrossing crossing : simulationController.getCrossings()) {
             terrainMainPanel.getChildren().add(crossing.getCrossingGraphics());
         }
-
-        TasksHandler.runTask(new Task() {
-            @Override
-            protected Object call() throws Exception {
-                simulationController.getCrossings().get(0).changeLights();
-                Thread.sleep(4000);
-                simulationController.getCrossings().get(0).changeLights();
-                return null;
-            }
-        });
     }
 
 }
