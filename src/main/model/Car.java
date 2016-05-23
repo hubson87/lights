@@ -58,6 +58,9 @@ public class Car {
         position.x += xSpeed;
         position.y += ySpeed;
         speed = xSpeed != 0 ? xSpeed : ySpeed;
+        if ((speed < 0 && (xDirection == 1 || yDirection == 1)) || (speed > 0 && (xDirection == -1 || yDirection == -1))) {
+            speed = 0;
+        }
         return position;
     }
 
@@ -76,5 +79,9 @@ public class Car {
 
     public ImageView getImageView() {
         return imageView;
+    }
+
+    public Point getPosition() {
+        return new Point((int)imageView.getX(), (int)imageView.getY());
     }
 }

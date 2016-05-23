@@ -65,8 +65,6 @@ public class TrafficLightsAndCrossing {
         this.lightRight.relocate(x2 - x1 - imageSizeX, (y2 - y1) / 2 - imageSizeY / 2);
     }
 
-    //we need one second to let all cars break before letting the others to start
-    //TODO: http://stackoverflow.com/questions/20497845/constantly-update-ui-in-java-fx-worker-thread
     public void changeLights() {
         TasksHandler.runTask(new Task() {
             @Override
@@ -117,5 +115,21 @@ public class TrafficLightsAndCrossing {
 
     public synchronized boolean isVerticalGreen() {
         return verticalGreen;
+    }
+
+    public int getX1() {
+        return x1;
+    }
+
+    public int getX2() {
+        return x2;
+    }
+
+    public int getY1() {
+        return y1;
+    }
+
+    public int getY2() {
+        return y2;
     }
 }
