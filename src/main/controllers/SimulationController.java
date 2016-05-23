@@ -39,7 +39,7 @@ public class SimulationController {
     }
 
     public void startSimulation(final int carsOnBeltLimit, final TerrainController terrainController) {
-        int simulationTimeInSecs = 60;
+        int simulationTimeInSecs = 15;
         final int taskPeriod = 30;
         final double[] interval = { (double) simulationTimeInSecs * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
@@ -47,11 +47,27 @@ public class SimulationController {
             @Override
             public void run() {
                 simulationIteration(carsOnBeltLimit, terrainController);
-                if (--interval[0] <= 1) {
-                    timer.cancel();
+                synchronized (interval) {
+                    if (--interval[0] <= 1) {
+                        timer.cancel();
+                    }
                 }
             }
         }, 1000, taskPeriod);
+        Timer timer2 = new Timer(true);
+        timer2.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                for (TrafficLightsAndCrossing cross : crossings) {
+                    cross.changeLights();
+                    synchronized (interval) {
+                        if (interval[0] <= 1) {
+                            timer2.cancel();
+                        }
+                    }
+                }
+            }
+        }, 2000, 3000);
     }
 
     private void simulationIteration(final int carsOnBeltLimit, final TerrainController terrainController) {
