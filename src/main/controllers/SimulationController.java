@@ -91,8 +91,8 @@ public class SimulationController {
         int x1From = windowWidth / 4 - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
         int x1To = windowWidth / 4 + verticalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
 
-        int x2From = 3 * windowWidth / 4 - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
-        int x2To = 3 * windowWidth / 4 + verticalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
+        int x2From = 3 * windowWidth / 4 - verticalBelts2Count * TrafficBelt.BELT_HEIGHT - 3;
+        int x2To = 3 * windowWidth / 4 + verticalBelts2Count * TrafficBelt.BELT_HEIGHT + 3;
 
         res.add(new TrafficLightsAndCrossing(x1From, x1To, yFrom, yTo));
         res.add(new TrafficLightsAndCrossing(x2From, x2To, yFrom, yTo));
