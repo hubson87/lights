@@ -39,7 +39,7 @@ public class TrafficBelt {
 
     public List<TrafficLightsAndCrossing> getCrossingAndLights() {
         if (crossingAndLights == null) {
-            crossingAndLights = new ArrayList<TrafficLightsAndCrossing>();
+            crossingAndLights = new ArrayList<>();
         }
         return crossingAndLights;
     }
@@ -85,13 +85,13 @@ public class TrafficBelt {
     private boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
         switch (beltDirection) {
             case RIGHT:
-                return car.getPosition().x < nextCrossing.getX1() - Math.abs(car.maxSpeed) * 10;
+                return car.getPosition().x < nextCrossing.getX1() - Math.abs(car.maxSpeed) * 3;
             case LEFT:
-                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.maxSpeed)  * 10;
+                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.maxSpeed)  * 3;
             case UP:
-                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.maxSpeed)  * 10;
+                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.maxSpeed)  * 3;
             case DOWN:
-                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.maxSpeed)  * 10;
+                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.maxSpeed)  * 3;
         }
         return false;
     }
