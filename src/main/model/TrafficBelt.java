@@ -72,7 +72,7 @@ public class TrafficBelt {
     private boolean canCarGo(Car car) {
         Point carPos = car.getPosition();
         TrafficLightsAndCrossing nextCrossing = getNextCrossingAndLights(carPos);
-        if (hasGreenLight(car, nextCrossing)) {
+        if (hasGreenLight(nextCrossing)) {
             return true;
         }
         //has red light but still has some distance to the traffic lights
@@ -96,7 +96,7 @@ public class TrafficBelt {
         return false;
     }
 
-    private boolean hasGreenLight(Car car, TrafficLightsAndCrossing nextCrossing) {
+    private synchronized boolean hasGreenLight(TrafficLightsAndCrossing nextCrossing) {
         //no more crossings to pass
         if (nextCrossing == null) {
             return true;
@@ -112,28 +112,28 @@ public class TrafficBelt {
         switch (beltDirection) {
             case RIGHT:
                 for (TrafficLightsAndCrossing crossing : crossingAndLights) {
-                    if (crossing.getX1() > carPos.x && (res == null || res.getX1() > crossing.getX1())) {
+                    if (crossing.getX1() > carPos.x + BELT_HEIGHT && (res == null || res.getX1() > crossing.getX1())) {
                         res = crossing;
                     }
                 }
                 return res;
             case LEFT:
                 for (TrafficLightsAndCrossing crossing : crossingAndLights) {
-                    if (crossing.getX2() < carPos.x && (res == null || res.getX2() < crossing.getX2())) {
+                    if (crossing.getX2() < carPos.x - BELT_HEIGHT && (res == null || res.getX2() < crossing.getX2())) {
                         res = crossing;
                     }
                 }
                 return res;
             case UP:
                 for (TrafficLightsAndCrossing crossing : crossingAndLights) {
-                    if (crossing.getY2() < carPos.y && (res == null || res.getY2() < crossing.getY2())) {
+                    if (crossing.getY2() < carPos.y - BELT_HEIGHT && (res == null || res.getY2() < crossing.getY2())) {
                         res = crossing;
                     }
                 }
                 return res;
             case DOWN:
                 for (TrafficLightsAndCrossing crossing : crossingAndLights) {
-                    if (crossing.getY1() > carPos.y && (res == null || res.getY1() > crossing.getY2())) {
+                    if (crossing.getY1() > carPos.y + BELT_HEIGHT && (res == null || res.getY1() > crossing.getY1())) {
                         res = crossing;
                     }
                 }

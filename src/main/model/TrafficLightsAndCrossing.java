@@ -29,9 +29,7 @@ public class TrafficLightsAndCrossing {
         this.redLight = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/red.png"));
         this.yellowLight = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/yellow.png"));
         this.greenLight = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/green.png"));
-        this.horizontalGreen = true;
-        this.verticalGreen = false;
-        setLights(redLight, greenLight);
+        setLights(redLight, false, greenLight, true);
     }
 
     private Pane initPane(int x1, int x2, int y1, int y2) {
@@ -44,11 +42,13 @@ public class TrafficLightsAndCrossing {
         return res;
     }
 
-    private void setLights(Image vertical, Image horizontal) {
+    private synchronized void setLights(Image vertical, boolean verticalGreen, Image horizontal, boolean horizontalGreen) {
         crossingCoordinates.getChildren().clear();
         setVerticalLights(vertical);
         setHorizontalLights(horizontal);
         crossingCoordinates.getChildren().addAll(lightLeft, lightUp, lightRight, lightDown);
+        this.verticalGreen = verticalGreen;
+        this.horizontalGreen = horizontalGreen;
     }
 
     private void setVerticalLights(Image img) {
@@ -71,12 +71,10 @@ public class TrafficLightsAndCrossing {
             protected Object call() throws Exception {
                 Platform.runLater(() -> {
                     if (horizontalGreen) {
-                        horizontalGreen = false;
-                        setLights(redLight, yellowLight);
+                        setLights(redLight, false, yellowLight, false);
                         switchLightsInThread(greenLight, redLight, true);
                     } else {
-                        verticalGreen = false;
-                        setLights(yellowLight, redLight);
+                        setLights(yellowLight, false, redLight, false);
                         switchLightsInThread(redLight, greenLight, false);
                     }
                 });
@@ -85,7 +83,7 @@ public class TrafficLightsAndCrossing {
         });
     }
 
-    private void switchLightsInThread(Image vertical, Image horizontal, boolean newVerticalGreenValue) {
+    private synchronized void switchLightsInThread(Image vertical, Image horizontal, boolean newVerticalGreenValue) {
         TasksHandler.runTask(new Task() {
             @Override
             protected Object call() throws Exception {
@@ -94,11 +92,7 @@ public class TrafficLightsAndCrossing {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } finally {
-                        Platform.runLater(() -> {
-                            setLights(vertical, horizontal);
-                            verticalGreen = newVerticalGreenValue;
-                            horizontalGreen = !newVerticalGreenValue;
-                        });
+                        Platform.runLater(() -> setLights(vertical, newVerticalGreenValue, horizontal, !newVerticalGreenValue));
                     }
                 return null;
             }

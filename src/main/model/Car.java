@@ -47,31 +47,31 @@ public class Car {
     }
 
     public void stop() {
-        Point newPos = calculatePosition(-acceleration * 5);
+        Point newPos = calculatePosition(-acceleration * 6);
         imageView.setX(newPos.getX());
         imageView.setY(newPos.getY());
     }
 
     private Point calculatePosition(double accelerationValue) {
-        int xSpeed = calculateSpeed(xDirection, accelerationValue);
-        int ySpeed = calculateSpeed(yDirection, accelerationValue);
+        int xSpeed = calculateSpeed(xDirection, accelerationValue, speed);
+        int ySpeed = calculateSpeed(yDirection, accelerationValue, speed);
+        speed = xSpeed != 0 ? xSpeed : ySpeed;
         position.x += xSpeed;
         position.y += ySpeed;
-        speed = xSpeed != 0 ? xSpeed : ySpeed;
-        if ((speed < 0 && (xDirection == 1 || yDirection == 1)) || (speed > 0 && (xDirection == -1 || yDirection == -1))) {
-            speed = 0;
-        }
         return position;
     }
 
-    private int calculateSpeed(int direction, double accelerationValue) {
+    private int calculateSpeed(int direction, double accelerationValue, int currentSpeed) {
         if (direction == 0) {
             return 0;
         }
-        double res = speed + direction * accelerationValue;
+        double res = currentSpeed + direction * accelerationValue;
         if (accelerationValue > 0 && (int)res > maxSpeed) {
             return maxSpeed;
         } else if (accelerationValue < 0 && (int)res <= 0) {
+            return 0;
+        }
+        if ((res < 0 && direction == 1) || (res > 0 && direction == -1)) {
             return 0;
         }
         return (int)res;

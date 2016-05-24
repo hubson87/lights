@@ -74,7 +74,7 @@ public class SimulationController {
         Platform.runLater(() -> {
             for (TrafficBelt belt : SimulationController.this.getAllBelts()) {
                 terrainController.removeCarsFromStage(belt.moveCars());
-                ImageView res = belt.addCar(new Random().nextInt(20));
+                ImageView res = belt.addCar(new Random().nextInt(10) + 15);
                 if (res != null) {
                     terrainController.addCarOnStage(res);
                 }
