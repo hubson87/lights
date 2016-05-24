@@ -49,6 +49,9 @@ public class TrafficBelt {
             return null;
         }
         Car car = new Car(maxSpeed, beltDirection, beltXStart, beltYStart);
+        if (hasAnyPossibleCollision(car)) {
+            return null;
+        }
         containingCars.add(car);
         return car.getImageView();
     }
@@ -72,12 +75,40 @@ public class TrafficBelt {
     private boolean canCarGo(Car car) {
         Point carPos = car.getPosition();
         TrafficLightsAndCrossing nextCrossing = getNextCrossingAndLights(carPos);
+        if (hasAnyPossibleCollision(car)) {
+            return false;
+        }
         if (hasGreenLight(nextCrossing)) {
             return true;
         }
         //has red light but still has some distance to the traffic lights
         if (hasDistanceToCrossing(car, nextCrossing)) {
             return true;
+        }
+        return false;
+    }
+
+    private boolean hasAnyPossibleCollision(Car car) {
+        for (Car c : containingCars) {
+            if (c == car) {
+                continue;
+            }
+            if (beltDirection == DirectionEnum.RIGHT && car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * 1.5
+                && car.getPosition().x < c.getPosition().x) {
+                return true;
+            }
+            if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * 1.5
+                && car.getPosition().x > c.getPosition().x) {
+                return true;
+            }
+            if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT* 1.5
+                && car.getPosition().y < c.getPosition().y) {
+                return true;
+            }
+            if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT* 1.5
+                && car.getPosition().y > c.getPosition().y) {
+                return true;
+            }
         }
         return false;
     }
