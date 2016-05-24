@@ -52,10 +52,10 @@ public class TerrainController implements Initializable {
     }
 
     public void initControllerValues(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
-                                    int carsLimit, int width, int height) {
+                                    int carsLimit, int simulationTime, int width, int height) {
         carsOnBeltLimit = carsLimit;
         simulationController = new SimulationController(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
-                carsLimit, width, height);
+                carsLimit, simulationTime, width, height);
 
         for (TrafficBelt belt : simulationController.getAllBelts()) {
             terrainMainPanel.getChildren().add(belt.getBeltGraphics());

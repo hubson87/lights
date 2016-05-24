@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -31,7 +32,8 @@ public class MainController implements Initializable {
     private Slider horizontalBeltsCount;
     @FXML
     private Slider carsLimit;
-
+    @FXML
+    private Spinner timeSpinner;
 
     @Override
     public void initialize(URL location, final ResourceBundle resources) {
@@ -56,6 +58,7 @@ public class MainController implements Initializable {
                             (int)verticalBelts2Count.getValue(),
                             (int)horizontalBeltsCount.getValue(),
                             (int)carsLimit.getValue(),
+                            (int)timeSpinner.getValue(),
                             TERRAIN_WIDTH, TERRAIN_HEIGHT);
                     stage.show();
                 } catch (IOException e) {

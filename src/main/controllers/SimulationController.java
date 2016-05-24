@@ -17,9 +17,10 @@ public class SimulationController {
     private List<TrafficBelt> verticalBelts2;
     private List<TrafficBelt> horizontalBelts;
     private List<TrafficLightsAndCrossing> crossings;
+    private int simulationTime;
 
     public SimulationController(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
-                                int carsLimit, int width, int height) {
+                                int carsLimit, int simulationTime, int width, int height) {
 
         verticalBelts = initVerticalBelts(verticalBeltsCount, height, width, carsLimit, width / 4);
         verticalBelts2 = initVerticalBelts(verticalBelts2Count, height, width, carsLimit, 3 * width / 4);
@@ -35,13 +36,13 @@ public class SimulationController {
         for (TrafficBelt belt : verticalBelts2) {
             belt.getCrossingAndLights().add(crossings.get(1));
         }
+        this.simulationTime = simulationTime;
 
     }
 
     public void startSimulation(final int carsOnBeltLimit, final TerrainController terrainController) {
-        int simulationTimeInSecs = 60;
         final int taskPeriod = 30;
-        final double[] interval = { (double) simulationTimeInSecs * 1000.0 / (double) taskPeriod };
+        final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override

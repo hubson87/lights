@@ -1,8 +1,6 @@
 <?import javafx.scene.layout.GridPane?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.*?>
 <GridPane fx:controller="main.controllers.MainController"
           xmlns:fx="http://javafx.com/fxml" alignment="TOP_LEFT" hgap="10" vgap="10">
     <Label text="Traffic belts vertical 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -15,7 +13,14 @@
     <Slider fx:id="horizontalBeltsCount" min="1" max="4" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="2"
             showTickLabels="true" showTickMarks="true" majorTickUnit="1" minorTickCount="0" snapToTicks="true"/>
     <Label text="Cars limit" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-    <Slider fx:id="carsLimit" min="0" max="250" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="3"
+    <Slider fx:id="carsLimit" min="50" max="250" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="3"
             showTickLabels="true" showTickMarks="true" majorTickUnit="50" minorTickCount="0" snapToTicks="true"/>
-    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <Label text="Simulation time (s)" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="4">
+        <valueFactory>
+            <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="120" initialValue="60"/>
+        </valueFactory>
+        <editable>true</editable>
+    </Spinner>
+    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
 </GridPane>
