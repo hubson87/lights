@@ -18,6 +18,7 @@ public class SimulationController {
     private List<TrafficBelt> horizontalBelts;
     private List<TrafficLightsAndCrossing> crossings;
     private int simulationTime;
+    private final Random random = new Random();
 
     public SimulationController(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                 int carsLimit, int simulationTime, int width, int height) {
@@ -40,14 +41,14 @@ public class SimulationController {
 
     }
 
-    public void startSimulation(final int carsOnBeltLimit, final TerrainController terrainController) {
+    public void startSimulation(final TerrainController terrainController) {
         final int taskPeriod = 30;
         final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                simulationIteration(carsOnBeltLimit, terrainController);
+                simulationIteration(terrainController);
                 synchronized (interval) {
                     if (--interval[0] <= 1) {
                         timer.cancel();
@@ -72,16 +73,23 @@ public class SimulationController {
         }, 3000, 6000);
     }
 
-    private void simulationIteration(final int carsOnBeltLimit, final TerrainController terrainController) {
+    private void simulationIteration(final TerrainController terrainController) {
         Platform.runLater(() -> {
             for (TrafficBelt belt : SimulationController.this.getAllBelts()) {
                 terrainController.removeCarsFromStage(belt.moveCars());
-                ImageView res = belt.addCar(new Random().nextInt(10) + 15);
+                ImageView res = belt.addCar(randomMaxSpeedForCar());
                 if (res != null) {
                     terrainController.addCarOnStage(res);
                 }
             }
         });
+    }
+
+    private synchronized int randomMaxSpeedForCar() {
+        if (random.nextInt(10) == 1) {
+            return new Random().nextInt(40) + 40;
+        }
+        return random.nextInt(20) + 10;
     }
 
     private List<TrafficLightsAndCrossing> initCrossings(int verticalBeltsCount, int verticalBelts2Count,

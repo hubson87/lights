@@ -34,7 +34,7 @@ public class TerrainController implements Initializable {
             TasksHandler.runTask(new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    simulationController.startSimulation(carsOnBeltLimit, TerrainController.this);
+                    simulationController.startSimulation(TerrainController.this);
                     return null;
                 }
             });

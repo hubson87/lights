@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import main.model.enums.DirectionEnum;
 
 import java.awt.*;
+import java.util.Random;
 
 public class Car {
     ImageView imageView;
@@ -24,7 +25,7 @@ public class Car {
         this.position = new Point(beltXPos, beltYPos);
         this.maxSpeed = maxSpeed;
         this.speed = maxSpeed / 4;
-        this.acceleration = 1.5;
+        this.acceleration = (double)maxSpeed / 10.0;
     }
 
     private ImageView loadImgAndResize(int startPosX, int startPosY) {
@@ -47,7 +48,7 @@ public class Car {
     }
 
     public void stop() {
-        Point newPos = calculatePosition(-acceleration * 6);
+        Point newPos = calculatePosition(-acceleration * 4);
         imageView.setX(newPos.getX());
         imageView.setY(newPos.getY());
     }
