@@ -12,7 +12,7 @@ public class Car {
     final int maxSpeed;
     int speed;
     Point position;
-    int xDirection, yDirection; //positive => move up or right, negative => move left or down
+    int xDirection, yDirection; //positive => move down or right, negative => move left or up
     double acceleration;
 
     public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos) {
