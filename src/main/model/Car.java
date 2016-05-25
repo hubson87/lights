@@ -51,7 +51,7 @@ public class Car {
     }
 
     public void stop() {
-        Point newPos = calculatePosition(-acceleration * 4);
+        Point newPos = calculatePosition(-acceleration * 5);
         imageView.setX(newPos.getX());
         imageView.setY(newPos.getY());
     }
