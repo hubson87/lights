@@ -8,12 +8,15 @@ import java.awt.*;
 import java.util.Random;
 
 public class Car {
-    ImageView imageView;
-    final int maxSpeed;
-    int speed;
-    Point position;
-    int xDirection, yDirection; //positive => move down or right, negative => move left or up
-    double acceleration;
+    private ImageView imageView;
+    private final int maxSpeed;
+    private int speed;
+    private Point position;
+    private int xDirection, yDirection; //positive => move down or right, negative => move left or up
+    private double acceleration;
+    private long allSpeedsMeasured = 0L;
+    private int allMovesCount = 0;
+    private int maxSpeedReached = 0;
 
     public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos) {
         if (direction == null) {
@@ -59,6 +62,12 @@ public class Car {
         speed = xSpeed != 0 ? xSpeed : ySpeed;
         position.x += xSpeed;
         position.y += ySpeed;
+        int absSpeed = Math.abs(speed);
+        if (absSpeed > maxSpeedReached) {
+            maxSpeedReached = absSpeed;
+        }
+        allSpeedsMeasured += absSpeed;
+        ++allMovesCount;
         return position;
     }
 
@@ -84,5 +93,17 @@ public class Car {
 
     public Point getPosition() {
         return new Point((int)imageView.getX(), (int)imageView.getY());
+    }
+
+    public long getAverageSpeed() {
+        return allSpeedsMeasured / allMovesCount;
+    }
+
+    public int getMaxSpeedReached() {
+        return maxSpeedReached;
+    }
+
+    public int getMaxSpeed() {
+        return maxSpeed;
     }
 }

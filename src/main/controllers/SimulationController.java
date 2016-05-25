@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
+import main.utils.ExcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class SimulationController {
                 synchronized (interval) {
                     if (--interval[0] <= 1) {
                         timer.cancel();
+                        collectResultsToFiles();
                     }
                 }
             }
@@ -71,6 +73,10 @@ public class SimulationController {
                 }
             }
         }, 3000, 6000);
+    }
+
+    private void collectResultsToFiles() {
+        ExcelUtils.exportSpeeds(getAllBelts());
     }
 
     private void simulationIteration(final TerrainController terrainController) {

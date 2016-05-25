@@ -2,13 +2,14 @@ package main.model;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import main.model.enums.DirectionEnum;
+import main.model.results.SpeedResult;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrafficBelt {
     public static final int BELT_HEIGHT = 20;
@@ -16,11 +17,13 @@ public class TrafficBelt {
     private Rectangle beltRect;
     private List<Car> containingCars;
     private DirectionEnum beltDirection;
-    int beltXStart, beltYStart, beltXEnd, beltYEnd;
-    List<TrafficLightsAndCrossing> crossingAndLights;
+    private int beltXStart, beltYStart, beltXEnd, beltYEnd;
+    private List<TrafficLightsAndCrossing> crossingAndLights;
+    private List<SpeedResult> speedResults;
 
     public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection) {
         this.carsLimit = carsLimit;
+        speedResults = new ArrayList<>();
         this.containingCars = new ArrayList<>();
         beltRect = new Rectangle(xPos, yPos, width, height);
         beltRect.setFill(Color.web("0x34495E"));
@@ -116,13 +119,13 @@ public class TrafficBelt {
     private boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
         switch (beltDirection) {
             case RIGHT:
-                return car.getPosition().x < nextCrossing.getX1() - Math.abs(car.maxSpeed) * 3;
+                return car.getPosition().x < nextCrossing.getX1() - Math.abs(car.getMaxSpeed()) * 3;
             case LEFT:
-                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.maxSpeed)  * 3;
+                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.getMaxSpeed())  * 3;
             case UP:
-                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.maxSpeed)  * 3;
+                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.getMaxSpeed())  * 3;
             case DOWN:
-                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.maxSpeed)  * 3;
+                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.getMaxSpeed())  * 3;
         }
         return false;
     }
@@ -207,7 +210,17 @@ public class TrafficBelt {
         }
         synchronized (containingCars){
             containingCars.removeAll(carsToRemove);
+            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getMaxSpeedReached(), car.getAverageSpeed()))
+                .collect(Collectors.toList()));
         }
         return carsViewsToRemove;
+    }
+
+    public DirectionEnum getBeltDirection() {
+        return beltDirection;
+    }
+
+    public List<SpeedResult> getSpeedResults() {
+        return speedResults;
     }
 }
