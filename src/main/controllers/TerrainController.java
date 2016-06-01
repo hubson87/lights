@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
+import main.model.enums.WeatherEnum;
 
 import java.net.URL;
 import java.util.List;
@@ -52,10 +53,10 @@ public class TerrainController implements Initializable {
         }
     }
 
-    public void initControllerValues(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
-                                    int carsLimit, int simulationTime, int width, int height) {
+    public void initControllerValues(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
+                                     int carsLimit, int simulationTime, int width, int height) {
         carsOnBeltLimit = carsLimit;
-        simulationController = new SimulationController(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
+        simulationController = new SimulationController(weatherConditions, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
                 carsLimit, simulationTime, width, height);
 
         for (TrafficBelt belt : simulationController.getAllBelts()) {

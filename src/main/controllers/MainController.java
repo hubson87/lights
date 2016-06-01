@@ -62,6 +62,7 @@ public class MainController implements Initializable {
                     stage.setAlwaysOnTop(true);
                     TerrainController terrainController = loader.getController();
                     terrainController.initControllerValues(
+                            null,
                             (int)verticalBeltsCount.getValue(),
                             (int)verticalBelts2Count.getValue(),
                             (int)horizontalBeltsCount.getValue(),

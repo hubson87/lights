@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class Car {
     private ImageView imageView;
-    private final int maxSpeed;
+    private Integer maxSpeed;
     private int speed;
     private Point position;
     private int xDirection, yDirection; //positive => move down or right, negative => move left or up
@@ -45,15 +45,19 @@ public class Car {
     }
 
     public void go(){
-        Point newPos = calculatePosition(acceleration);
-        imageView.setX(newPos.getX());
-        imageView.setY(newPos.getY());
+        synchronized (maxSpeed) {
+            Point newPos = calculatePosition(acceleration);
+            imageView.setX(newPos.getX());
+            imageView.setY(newPos.getY());
+        }
     }
 
     public void stop() {
-        Point newPos = calculatePosition(-acceleration * 5);
-        imageView.setX(newPos.getX());
-        imageView.setY(newPos.getY());
+        synchronized (maxSpeed) {
+            Point newPos = calculatePosition(-acceleration * 5);
+            imageView.setX(newPos.getX());
+            imageView.setY(newPos.getY());
+        }
     }
 
     private Point calculatePosition(double accelerationValue) {
@@ -69,6 +73,12 @@ public class Car {
         allSpeedsMeasured += absSpeed;
         ++allMovesCount;
         return position;
+    }
+
+    public void changeMaxSpeed(int newMaxSpeed) {
+        synchronized (maxSpeed) {
+            maxSpeed = newMaxSpeed;
+        }
     }
 
     private int calculateSpeed(int direction, double accelerationValue, int currentSpeed) {

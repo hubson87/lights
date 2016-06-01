@@ -5,14 +5,17 @@ import javafx.scene.paint.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import main.model.enums.DirectionEnum;
+import main.model.enums.WeatherEnum;
 import main.model.results.SpeedResult;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class TrafficBelt {
+    private final Random random = new Random();
     public static final int BELT_HEIGHT = 20;
     private static final double STOPPING_DIST_FACT = 1.5;
     private int carsLimit;
@@ -49,16 +52,29 @@ public class TrafficBelt {
         return crossingAndLights;
     }
 
-    public ImageView addCar(int maxSpeed) {
+    public ImageView addCar(WeatherEnum weatherConditions) {
         if (containingCars.size() >= carsLimit) {
             return null;
         }
-        Car car = new Car(maxSpeed, beltDirection, beltXStart, beltYStart);
+        Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart);
         if (hasAnyPossibleCollision(car)) {
             return null;
         }
         containingCars.add(car);
         return car.getImageView();
+    }
+
+    public void changeCarsSpeed(WeatherEnum weatherConditions) {
+        for (Car car : containingCars) {
+            car.changeMaxSpeed(randomMaxSpeedForCar(weatherConditions));
+        }
+    }
+
+    private synchronized int randomMaxSpeedForCar(WeatherEnum weatherConditions) {
+        if (random.nextInt(10) == 1) {
+            return new Random().nextInt(weatherConditions.getFasterRandomFactor()) + weatherConditions.getFasterMinFactor();
+        }
+        return random.nextInt(weatherConditions.getSlowerRandomFactor()) + weatherConditions.getSlowerMinFactor();
     }
 
     public Rectangle getBeltGraphics() {
@@ -265,4 +281,5 @@ public class TrafficBelt {
     public List<SpeedResult> getSpeedResults() {
         return speedResults;
     }
+
 }

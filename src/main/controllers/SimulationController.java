@@ -5,11 +5,11 @@ import javafx.scene.image.ImageView;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
+import main.model.enums.WeatherEnum;
 import main.utils.ExcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,11 +19,14 @@ public class SimulationController {
     private List<TrafficBelt> horizontalBelts;
     private List<TrafficLightsAndCrossing> crossings;
     private int simulationTime;
-    private final Random random = new Random();
+    private WeatherEnum weatherConditions;
+    private final boolean dynamicWeather;
 
-    public SimulationController(int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
+    public SimulationController(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                 int carsLimit, int simulationTime, int width, int height) {
 
+        this.dynamicWeather = weatherConditions == null;
+        this.weatherConditions = weatherConditions == null ? WeatherEnum.getRandom() : weatherConditions;
         verticalBelts = initVerticalBelts(verticalBeltsCount, height, width, carsLimit, width / 4);
         verticalBelts2 = initVerticalBelts(verticalBelts2Count, height, width, carsLimit, 3 * width / 4);
         horizontalBelts = initHorizontalBelts(horizontalBeltsCount, height, width, carsLimit);
@@ -73,6 +76,21 @@ public class SimulationController {
                 }
             }
         }, 3000, 6000);
+        //change weather dynamically
+        if (dynamicWeather) {
+            Timer weatherTimer = new Timer(true);
+            weatherTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    synchronized (weatherConditions) {
+                        weatherConditions = WeatherEnum.getRandom();
+                        for (TrafficBelt belt : getAllBelts()) {
+                            belt.changeCarsSpeed(weatherConditions);
+                        }
+                    }
+                }
+            }, 6000, 18000);
+        }
     }
 
     private void collectResultsToFiles() {
@@ -83,19 +101,12 @@ public class SimulationController {
         Platform.runLater(() -> {
             for (TrafficBelt belt : SimulationController.this.getAllBelts()) {
                 terrainController.removeCarsFromStage(belt.moveCars());
-                ImageView res = belt.addCar(randomMaxSpeedForCar());
+                ImageView res = belt.addCar(weatherConditions);
                 if (res != null) {
                     terrainController.addCarOnStage(res);
                 }
             }
         });
-    }
-
-    private synchronized int randomMaxSpeedForCar() {
-        if (random.nextInt(10) == 1) {
-            return new Random().nextInt(40) + 40;
-        }
-        return random.nextInt(20) + 10;
     }
 
     private List<TrafficLightsAndCrossing> initCrossings(int verticalBeltsCount, int verticalBelts2Count,
