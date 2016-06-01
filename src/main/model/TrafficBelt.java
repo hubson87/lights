@@ -1,7 +1,6 @@
 package main.model;
 
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import main.model.enums.DirectionEnum;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 public class TrafficBelt {
     private final Random random = new Random();
     public static final int BELT_HEIGHT = 20;
-    private static final double STOPPING_DIST_FACT = 1.5;
+    private static Double STOPPING_DIST_FACT = 1.5;
     private int carsLimit;
     private Rectangle beltRect;
     private List<Car> containingCars;
@@ -155,19 +154,20 @@ public class TrafficBelt {
     }
 
     private boolean collisionBetweenTwoCars(Car car, Car c) {
-        if (beltDirection == DirectionEnum.RIGHT && car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * STOPPING_DIST_FACT
+        if (beltDirection == DirectionEnum.RIGHT &&
+            car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * getStoppingDistFact()
             && car.getPosition().x < c.getPosition().x) {
             return true;
         }
-        if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * STOPPING_DIST_FACT
+        if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * getStoppingDistFact()
             && car.getPosition().x > c.getPosition().x) {
             return true;
         }
-        if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT * STOPPING_DIST_FACT
+        if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT * getStoppingDistFact()
             && car.getPosition().y < c.getPosition().y) {
             return true;
         }
-        if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT * STOPPING_DIST_FACT
+        if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT * getStoppingDistFact()
             && car.getPosition().y > c.getPosition().y) {
             return true;
         }
@@ -282,4 +282,15 @@ public class TrafficBelt {
         return speedResults;
     }
 
+    public static double getStoppingDistFact() {
+        synchronized (STOPPING_DIST_FACT) {
+            return STOPPING_DIST_FACT;
+        }
+    }
+
+    public static void setStoppingDistFact(double stoppingDistFact) {
+        synchronized (STOPPING_DIST_FACT) {
+            STOPPING_DIST_FACT = stoppingDistFact;
+        }
+    }
 }

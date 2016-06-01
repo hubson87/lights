@@ -7,6 +7,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import main.model.TrafficBelt;
@@ -23,8 +24,12 @@ public class TerrainController implements Initializable {
     @FXML
     Button startSimulationButton;
 
-    private int carsOnBeltLimit;
     private SimulationController simulationController;
+    private ImageView currentWeather;
+    private double windowWidth;
+    private final double weatherOriginalImageWidth = 801.0;
+    private final double weatherOriginalImageHeight = 323.0;
+    private final double weatherImageScale = 6.0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,7 +60,7 @@ public class TerrainController implements Initializable {
 
     public void initControllerValues(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                      int carsLimit, int simulationTime, int width, int height) {
-        carsOnBeltLimit = carsLimit;
+        this.windowWidth = width;
         simulationController = new SimulationController(weatherConditions, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
                 carsLimit, simulationTime, width, height);
 
@@ -68,4 +73,16 @@ public class TerrainController implements Initializable {
         }
     }
 
+    public void setWeatherSign(WeatherEnum weatherConditions) {
+        if (currentWeather != null && terrainMainPanel.getChildren().contains(currentWeather)) {
+            terrainMainPanel.getChildren().remove(currentWeather);
+        }
+        Image img = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/weather/" + weatherConditions.getResourceName()));
+        currentWeather = new ImageView(img);
+        currentWeather.setPreserveRatio(true);
+        currentWeather.setFitWidth(weatherOriginalImageWidth / weatherImageScale);
+        currentWeather.setFitHeight(weatherOriginalImageHeight / weatherImageScale);
+        currentWeather.setX(windowWidth / 2.0 - weatherOriginalImageWidth / weatherImageScale / 2.0);
+        terrainMainPanel.getChildren().add(currentWeather);
+    }
 }

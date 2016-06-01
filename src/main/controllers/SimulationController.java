@@ -32,13 +32,16 @@ public class SimulationController {
         horizontalBelts = initHorizontalBelts(horizontalBeltsCount, height, width, carsLimit);
         crossings = initCrossings(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount, height, width);    //first and the second crossing
         for (TrafficBelt belt : horizontalBelts) {
+            belt.setStoppingDistFact(this.weatherConditions.getStoppingDistanceFactor());
             belt.getCrossingAndLights().add(crossings.get(0));
             belt.getCrossingAndLights().add(crossings.get(1));
         }
         for (TrafficBelt belt : verticalBelts) {
+            belt.setStoppingDistFact(this.weatherConditions.getStoppingDistanceFactor());
             belt.getCrossingAndLights().add(crossings.get(0));
         }
         for (TrafficBelt belt : verticalBelts2) {
+            belt.setStoppingDistFact(this.weatherConditions.getStoppingDistanceFactor());
             belt.getCrossingAndLights().add(crossings.get(1));
         }
         this.simulationTime = simulationTime;
@@ -49,6 +52,7 @@ public class SimulationController {
         final int taskPeriod = 30;
         final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
+        Platform.runLater(() -> terrainController.setWeatherSign(weatherConditions));
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -84,6 +88,8 @@ public class SimulationController {
                 public void run() {
                     synchronized (weatherConditions) {
                         weatherConditions = WeatherEnum.getRandom();
+                        Platform.runLater(() -> terrainController.setWeatherSign(weatherConditions));
+                        TrafficBelt.setStoppingDistFact(weatherConditions.getStoppingDistanceFactor());
                         for (TrafficBelt belt : getAllBelts()) {
                             belt.changeCarsSpeed(weatherConditions);
                         }
