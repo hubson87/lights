@@ -136,13 +136,13 @@ public class SimulationController {
         List<TrafficBelt> res = new ArrayList<TrafficBelt>();
         int beltsYStart = windowHeight / 2 - horizontalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;   //we want to separate them
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT, DirectionEnum.RIGHT);
+            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT, DirectionEnum.LEFT);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsYStart += 6;
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT, DirectionEnum.LEFT);
+            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT, DirectionEnum.RIGHT);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }

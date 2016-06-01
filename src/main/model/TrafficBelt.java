@@ -93,10 +93,10 @@ public class TrafficBelt {
     }
 
     private boolean canGoThroughTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        if (nextCrossing == null) {
+        if (nextCrossing == null || hasDistanceToCrossing(car, nextCrossing)) {
             return true;
         }
-        return !hasDistanceToCrossing(car, nextCrossing) && hasPlaceAfterTheCrossing(car, nextCrossing);
+        return hasPlaceAfterTheCrossing(car, nextCrossing);
     }
 
     private boolean hasPlaceAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
