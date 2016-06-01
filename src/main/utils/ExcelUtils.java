@@ -16,10 +16,11 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 
 public class ExcelUtils {
-    public static void exportSpeeds(List<TrafficBelt> allBelts) {
+    public static String exportSpeeds(List<TrafficBelt> allBelts) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-            FileOutputStream fos =  new FileOutputStream("speeds_" + formatter.format(LocalDateTime.now()) + ".xls");
+            String filename = "speeds_" + formatter.format(LocalDateTime.now()) + ".xls";
+            FileOutputStream fos =  new FileOutputStream(filename);
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet("SpeedResults");
             int rowNum = 0;
@@ -43,10 +44,12 @@ public class ExcelUtils {
             workbook.write(fos);
             fos.flush();
             fos.close();
+            return filename;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 }

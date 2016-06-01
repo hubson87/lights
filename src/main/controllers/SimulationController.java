@@ -60,7 +60,8 @@ public class SimulationController {
                 synchronized (interval) {
                     if (--interval[0] <= 1) {
                         timer.cancel();
-                        collectResultsToFiles();
+                        String resFilename = collectResultsToFiles();
+                        Platform.runLater(() -> terrainController.showResultsScreen(resFilename));
                     }
                 }
             }
@@ -99,8 +100,8 @@ public class SimulationController {
         }
     }
 
-    private void collectResultsToFiles() {
-        ExcelUtils.exportSpeeds(getAllBelts());
+    private String collectResultsToFiles() {
+        return ExcelUtils.exportSpeeds(getAllBelts());
     }
 
     private void simulationIteration(final TerrainController terrainController) {

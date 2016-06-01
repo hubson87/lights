@@ -5,15 +5,20 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.WeatherEnum;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -26,7 +31,7 @@ public class TerrainController implements Initializable {
 
     private SimulationController simulationController;
     private ImageView currentWeather;
-    private double windowWidth;
+    private double windowWidth, windowHeight;
     private final double weatherOriginalImageWidth = 801.0;
     private final double weatherOriginalImageHeight = 323.0;
     private final double weatherImageScale = 6.0;
@@ -61,6 +66,7 @@ public class TerrainController implements Initializable {
     public void initControllerValues(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
                                      int carsLimit, int simulationTime, int width, int height) {
         this.windowWidth = width;
+        this.windowHeight = height;
         simulationController = new SimulationController(weatherConditions, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
                 carsLimit, simulationTime, width, height);
 
@@ -84,5 +90,24 @@ public class TerrainController implements Initializable {
         currentWeather.setFitHeight(weatherOriginalImageHeight / weatherImageScale);
         currentWeather.setX(windowWidth / 2.0 - weatherOriginalImageWidth / weatherImageScale / 2.0);
         terrainMainPanel.getChildren().add(currentWeather);
+    }
+
+    public void showResultsScreen(String resFilename) {
+        Parent root;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/screens/results.fxml"));
+            root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Results screen");
+            Scene scene = new Scene(root, windowWidth, windowHeight);
+            stage.setScene(scene);
+            stage.setResizable(false);
+            ResultsController resultsController = loader.getController();
+            resultsController.initController(resFilename);
+            ((Stage)terrainMainPanel.getScene().getWindow()).close();
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
