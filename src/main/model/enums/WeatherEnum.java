@@ -3,11 +3,11 @@ package main.model.enums;
 import java.util.Random;
 
 public enum  WeatherEnum {
-    SUNNY (20, 30, 40, 60, 3.0),
-    RAINY (10, 20, 40, 40, 1.5),
-    SNOWY (10, 20, 20, 30, 1.2),
-    GLAZE (10, 10, 20, 20, 1.0),
-    FOGGY (10, 20, 30, 30, 1.3);
+    SUNNY (20, 30, 40, 60, 4.0),
+    RAINY (10, 20, 40, 40, 2.0),
+    SNOWY (10, 20, 20, 30, 1.4),
+    GLAZE (10, 10, 20, 20, 1.3),
+    FOGGY (10, 20, 30, 30, 1.4);
 
     final int slowerMinFactor, slowerRandomFactor;
     final int fasterMinFactor, fasterRandomFactor;

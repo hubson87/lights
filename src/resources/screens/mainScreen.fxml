@@ -3,24 +3,39 @@
 <?import javafx.scene.control.*?>
 <GridPane fx:controller="main.controllers.MainController"
           xmlns:fx="http://javafx.com/fxml" alignment="TOP_LEFT" hgap="10" vgap="10">
-    <Label text="Traffic belts vertical 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-    <Slider fx:id="verticalBeltsCount" min="1" max="3" blockIncrement="1"  GridPane.columnIndex="1" GridPane.rowIndex="0"
+    <fx:define>
+        <ToggleGroup fx:id="weatherGroup"/>
+    </fx:define>
+    <GridPane prefHeight="3" GridPane.rowIndex="0"/>
+    <Label text="Traffic belts vertical 1" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <Slider fx:id="verticalBeltsCount" min="1" max="3" blockIncrement="1"  GridPane.columnIndex="1" GridPane.rowIndex="1"
             showTickLabels="true" showTickMarks="true" majorTickUnit="1" minorTickCount="0" snapToTicks="true"/>
-    <Label text="Traffic belts vertical 2" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <Slider fx:id="verticalBelts2Count" min="1" max="3" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="1"
+    <Label text="Traffic belts vertical 2" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <Slider fx:id="verticalBelts2Count" min="1" max="3" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="2"
             showTickLabels="true" showTickMarks="true" majorTickUnit="1" minorTickCount="0" snapToTicks="true"/>
-    <Label text="Traffic belts horizontal" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-    <Slider fx:id="horizontalBeltsCount" min="1" max="4" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="2"
+    <Label text="Traffic belts horizontal" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <Slider fx:id="horizontalBeltsCount" min="1" max="4" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="3"
             showTickLabels="true" showTickMarks="true" majorTickUnit="1" minorTickCount="0" snapToTicks="true"/>
-    <Label text="Cars limit" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-    <Slider fx:id="carsLimit" min="50" max="250" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="3"
+    <Label text="Cars limit" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <Slider fx:id="carsLimit" min="50" max="250" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="4"
             showTickLabels="true" showTickMarks="true" majorTickUnit="50" minorTickCount="0" snapToTicks="true"/>
-    <Label text="Simulation time (s)" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-    <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="4" editable="true">
+    <Label text="Weather:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <GridPane GridPane.columnIndex="1" GridPane.rowIndex="5">
+        <RadioButton fx:id="sunnyRB" toggleGroup="$weatherGroup" text="Sunny" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="rainyRB" toggleGroup="$weatherGroup" text="Rainy" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="80"/>
+    </GridPane>
+    <GridPane GridPane.columnIndex="2" GridPane.rowIndex="5">
+        <RadioButton fx:id="snowyRB" toggleGroup="$weatherGroup" text="Snowy" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="glazeRB" toggleGroup="$weatherGroup" text="Glaze" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="foggyRB" toggleGroup="$weatherGroup" text="Foggy" GridPane.columnIndex="2" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="randWeatherRB" toggleGroup="$weatherGroup" text="Random" GridPane.columnIndex="3" GridPane.rowIndex="0" prefWidth="80"/>
+    </GridPane>
+    <Label text="Simulation time (s)" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="6" editable="true">
         <valueFactory>
             <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="120" initialValue="60"/>
         </valueFactory>
         <editable>true</editable>
     </Spinner>
-    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
 </GridPane>

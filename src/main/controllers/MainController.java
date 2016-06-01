@@ -8,9 +8,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.stage.Stage;
+import main.model.enums.WeatherEnum;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,9 +33,20 @@ public class MainController implements Initializable {
     private Slider carsLimit;
     @FXML
     private Spinner<Integer> timeSpinner;
+    @FXML
+    private RadioButton sunnyRB;
+    @FXML
+    private RadioButton rainyRB;
+    @FXML
+    private RadioButton snowyRB;
+    @FXML
+    private RadioButton glazeRB;
+    @FXML
+    private RadioButton foggyRB;
 
     @Override
     public void initialize(URL location, final ResourceBundle resources) {
+        sunnyRB.setSelected(true);
         timeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (isInteger(newValue)) {
@@ -62,7 +75,7 @@ public class MainController implements Initializable {
                     stage.setAlwaysOnTop(true);
                     TerrainController terrainController = loader.getController();
                     terrainController.initControllerValues(
-                            null,
+                            getWeatherFromRadioButtons(),
                             (int)verticalBeltsCount.getValue(),
                             (int)verticalBelts2Count.getValue(),
                             (int)horizontalBeltsCount.getValue(),
@@ -76,6 +89,21 @@ public class MainController implements Initializable {
                 }
             }
         });
+    }
+
+    private WeatherEnum getWeatherFromRadioButtons() {
+        if (sunnyRB.isSelected()) {
+            return WeatherEnum.SUNNY;
+        } else if (rainyRB.isSelected()) {
+            return WeatherEnum.RAINY;
+        } else if (snowyRB.isSelected()) {
+            return WeatherEnum.SNOWY;
+        } else if (glazeRB.isSelected()) {
+            return WeatherEnum.GLAZE;
+        } else if (foggyRB.isSelected()) {
+            return WeatherEnum.FOGGY;
+        }
+        return null;
     }
 
     private boolean isInteger(String value) {
