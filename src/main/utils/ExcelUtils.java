@@ -4,7 +4,8 @@ package main.utils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import main.model.TrafficBelt;
@@ -17,7 +18,8 @@ import org.apache.poi.ss.usermodel.Cell;
 public class ExcelUtils {
     public static void exportSpeeds(List<TrafficBelt> allBelts) {
         try {
-            FileOutputStream fos =  new FileOutputStream("speeds_" + LocalDate.now().toString() + ".xls");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            FileOutputStream fos =  new FileOutputStream("speeds_" + formatter.format(LocalDateTime.now()) + ".xls");
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet("SpeedResults");
             int rowNum = 0;

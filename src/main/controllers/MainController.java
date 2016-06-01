@@ -33,10 +33,22 @@ public class MainController implements Initializable {
     @FXML
     private Slider carsLimit;
     @FXML
-    private Spinner timeSpinner;
+    private Spinner<Integer> timeSpinner;
 
     @Override
     public void initialize(URL location, final ResourceBundle resources) {
+        timeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (isInteger(newValue)) {
+                    timeSpinner.getValueFactory().setValue(Integer.parseInt(newValue));
+                }
+            } catch (NumberFormatException e) {
+                if (isInteger(oldValue)) {
+                    timeSpinner.getValueFactory().setValue(Integer.parseInt(oldValue));
+                }
+            }
+        });
+
         generateButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -58,7 +70,7 @@ public class MainController implements Initializable {
                             (int)verticalBelts2Count.getValue(),
                             (int)horizontalBeltsCount.getValue(),
                             (int)carsLimit.getValue(),
-                            (int)timeSpinner.getValue(),
+                            timeSpinner.getValue(),
                             TERRAIN_WIDTH, TERRAIN_HEIGHT);
                     stage.show();
                 } catch (IOException e) {
@@ -66,5 +78,17 @@ public class MainController implements Initializable {
                 }
             }
         });
+    }
+
+    private boolean isInteger(String value) {
+        if (value == null) {
+            return false;
+        }
+        try {
+            new Integer(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
