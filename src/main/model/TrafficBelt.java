@@ -1,6 +1,7 @@
 package main.model;
 
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import main.model.enums.DirectionEnum;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 public class TrafficBelt {
     public static final int BELT_HEIGHT = 20;
+    private static final double STOPPING_DIST_FACT = 1.5;
     private int carsLimit;
     private Rectangle beltRect;
     private List<Car> containingCars;
@@ -74,14 +76,13 @@ public class TrafficBelt {
         return cleanup();
     }
 
-    //TODO: Check possible collisions
     private boolean canCarGo(Car car) {
         Point carPos = car.getPosition();
         TrafficLightsAndCrossing nextCrossing = getNextCrossingAndLights(carPos);
         if (hasAnyPossibleCollision(car)) {
             return false;
         }
-        if (hasGreenLight(nextCrossing)) {
+        if (hasGreenLight(nextCrossing) && canGoThroughTheCrossing(car, nextCrossing)) {
             return true;
         }
         //has red light but still has some distance to the traffic lights
@@ -91,27 +92,68 @@ public class TrafficBelt {
         return false;
     }
 
+    private boolean canGoThroughTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
+        if (nextCrossing == null) {
+            return true;
+        }
+        return !hasDistanceToCrossing(car, nextCrossing) && hasPlaceAfterTheCrossing(car, nextCrossing);
+    }
+
+    private boolean hasPlaceAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
+        Car afterCrossingCar = findFirstCarAfterTheCrossing(car, nextCrossing);
+        if (afterCrossingCar == null) {
+            return true;
+        }
+        if (collisionBetweenTwoCars(car, afterCrossingCar)) {
+            return false;
+        }
+        return true;
+    }
+
+    private Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
+        Car firstCar = null;
+        for (Car c : containingCars) {
+            if (c == car) {
+                continue;
+            }
+            if ((beltDirection == DirectionEnum.RIGHT && nextCrossing.getX2() < c.getPosition().x && (firstCar == null || c.getPosition().x < firstCar.getPosition().x))
+            || (beltDirection == DirectionEnum.LEFT && nextCrossing.getX1() > c.getPosition().x && (firstCar == null || c.getPosition().x > firstCar.getPosition().x))
+            || (beltDirection == DirectionEnum.DOWN && nextCrossing.getY2() < c.getPosition().y && (firstCar == null || c.getPosition().y < firstCar.getPosition().y))
+            || (beltDirection == DirectionEnum.UP && nextCrossing.getY1() > c.getPosition().y && (firstCar == null || c.getPosition().y > firstCar.getPosition().y))){
+                firstCar = c;
+            }
+        }
+        return firstCar;
+    }
+
     private boolean hasAnyPossibleCollision(Car car) {
         for (Car c : containingCars) {
             if (c == car) {
                 continue;
             }
-            if (beltDirection == DirectionEnum.RIGHT && car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * 1.5
-                && car.getPosition().x < c.getPosition().x) {
+            if (collisionBetweenTwoCars(car, c)) {
                 return true;
             }
-            if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * 1.5
-                && car.getPosition().x > c.getPosition().x) {
-                return true;
-            }
-            if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT* 1.5
-                && car.getPosition().y < c.getPosition().y) {
-                return true;
-            }
-            if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT* 1.5
-                && car.getPosition().y > c.getPosition().y) {
-                return true;
-            }
+        }
+        return false;
+    }
+
+    private boolean collisionBetweenTwoCars(Car car, Car c) {
+        if (beltDirection == DirectionEnum.RIGHT && car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * STOPPING_DIST_FACT
+            && car.getPosition().x < c.getPosition().x) {
+            return true;
+        }
+        if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * STOPPING_DIST_FACT
+            && car.getPosition().x > c.getPosition().x) {
+            return true;
+        }
+        if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT * STOPPING_DIST_FACT
+            && car.getPosition().y < c.getPosition().y) {
+            return true;
+        }
+        if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT * STOPPING_DIST_FACT
+            && car.getPosition().y > c.getPosition().y) {
+            return true;
         }
         return false;
     }
