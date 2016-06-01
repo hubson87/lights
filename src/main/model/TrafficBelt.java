@@ -24,8 +24,10 @@ public class TrafficBelt {
     private int beltXStart, beltYStart, beltXEnd, beltYEnd;
     private List<TrafficLightsAndCrossing> crossingAndLights;
     private List<SpeedResult> speedResults;
+    private int carsThatLeftTheStage;
 
     public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection) {
+        carsThatLeftTheStage = 0;
         this.carsLimit = carsLimit;
         speedResults = new ArrayList<>();
         this.containingCars = new ArrayList<>();
@@ -270,6 +272,7 @@ public class TrafficBelt {
             containingCars.removeAll(carsToRemove);
             speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getMaxSpeedReached(), car.getAverageSpeed()))
                 .collect(Collectors.toList()));
+            carsThatLeftTheStage += carsToRemove.size();
         }
         return carsViewsToRemove;
     }
