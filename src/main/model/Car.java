@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import main.model.enums.DirectionEnum;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 public class Car {
@@ -13,6 +14,10 @@ public class Car {
     private int speed;
     private Point position;
     private int xDirection, yDirection; //positive => move down or right, negative => move left or up
+    private final Point beginPos;
+    private Point endPos;
+    private final LocalDateTime carEnterOnStageTime;
+    private LocalDateTime carLeftTheStageTime;
     private double acceleration;
     private long allSpeedsMeasured = 0L;
     private int allMovesCount = 0;
@@ -26,6 +31,8 @@ public class Car {
         xDirection = direction == DirectionEnum.RIGHT ? 1 : (direction == DirectionEnum.LEFT ? -1 : 0);
         yDirection = direction == DirectionEnum.DOWN ? 1 : (direction == DirectionEnum.UP ? -1 : 0);
         this.position = new Point(beltXPos, beltYPos);
+        this.beginPos = new Point(beltXPos, beltYPos);
+        this.carEnterOnStageTime = LocalDateTime.now();
         this.maxSpeed = maxSpeed;
         this.speed = maxSpeed / 4;
         this.acceleration = (double)maxSpeed / 10.0;
@@ -97,6 +104,11 @@ public class Car {
         return (int)res;
     }
 
+    public void carRemoveLogic() {
+        this.carLeftTheStageTime = LocalDateTime.now();
+        this.endPos = new Point(position.x, position.y);
+    }
+
     public ImageView getImageView() {
         return imageView;
     }
@@ -115,5 +127,21 @@ public class Car {
 
     public int getMaxSpeed() {
         return maxSpeed;
+    }
+
+    public LocalDateTime getCarEnterOnStageTime() {
+        return carEnterOnStageTime;
+    }
+
+    public LocalDateTime getCarLeftTheStageTime() {
+        return carLeftTheStageTime;
+    }
+
+    public Point getBeginPos() {
+        return beginPos;
+    }
+
+    public Point getEndPos() {
+        return endPos;
     }
 }

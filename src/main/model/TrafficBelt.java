@@ -244,6 +244,7 @@ public class TrafficBelt {
                 if (car.getImageView().getY() >= beltYEnd) {
                     carsViewsToRemove.add(car.getImageView());
                     carsToRemove.add(car);
+                    car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.UP) {
@@ -251,6 +252,7 @@ public class TrafficBelt {
                 if (car.getImageView().getY() + car.getImageView().getFitHeight() <= 0) {
                     carsViewsToRemove.add(car.getImageView());
                     carsToRemove.add(car);
+                    car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.RIGHT) {
@@ -258,6 +260,7 @@ public class TrafficBelt {
                 if (car.getImageView().getX() >= beltXEnd) {
                     carsViewsToRemove.add(car.getImageView());
                     carsToRemove.add(car);
+                    car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.LEFT) {
@@ -265,6 +268,7 @@ public class TrafficBelt {
                 if (car.getImageView().getX() + car.getImageView().getFitWidth() <= 0) {
                     carsViewsToRemove.add(car.getImageView());
                     carsToRemove.add(car);
+                    car.carRemoveLogic();
                 }
             }
         }
