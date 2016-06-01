@@ -72,7 +72,6 @@ public class MainController implements Initializable {
                     scene.getStylesheets().addAll(this.getClass().getResource("/resources/css/terrainStyles.css ").toExternalForm());
                     stage.setScene(scene);
                     stage.setResizable(false);
-                    stage.setAlwaysOnTop(true);
                     TerrainController terrainController = loader.getController();
                     terrainController.initControllerValues(
                             getWeatherFromRadioButtons(),

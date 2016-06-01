@@ -25,8 +25,10 @@ public class TrafficBelt {
     private List<TrafficLightsAndCrossing> crossingAndLights;
     private List<SpeedResult> speedResults;
     private int carsThatLeftTheStage;
+    private final Integer speedControlStart, speedControlEnd;
 
-    public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection) {
+    public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
+                       Integer speedControlStart, Integer speedControlEnd) {
         carsThatLeftTheStage = 0;
         this.carsLimit = carsLimit;
         speedResults = new ArrayList<>();
@@ -41,9 +43,11 @@ public class TrafficBelt {
         beltYStart = beltDirection.isHorizontal() ? yPos + 3 :
                 (beltDirection == DirectionEnum.DOWN ? yPos : yPos + height);
         beltXEnd = !beltDirection.isHorizontal() ? xPos + 3 :
-            (beltDirection == DirectionEnum.RIGHT ? xPos + width : xPos);
+                (beltDirection == DirectionEnum.RIGHT ? xPos + width : xPos);
         beltYEnd = beltDirection.isHorizontal() ? yPos + 3 :
-            (beltDirection == DirectionEnum.DOWN ? yPos + height : yPos);
+                (beltDirection == DirectionEnum.DOWN ? yPos + height : yPos);
+        this.speedControlStart = speedControlStart;
+        this.speedControlEnd = speedControlEnd;
     }
 
     public List<TrafficLightsAndCrossing> getCrossingAndLights() {
@@ -134,9 +138,9 @@ public class TrafficBelt {
                 continue;
             }
             if ((beltDirection == DirectionEnum.RIGHT && nextCrossing.getX2() < c.getPosition().x && (firstCar == null || c.getPosition().x < firstCar.getPosition().x))
-            || (beltDirection == DirectionEnum.LEFT && nextCrossing.getX1() > c.getPosition().x && (firstCar == null || c.getPosition().x > firstCar.getPosition().x))
-            || (beltDirection == DirectionEnum.DOWN && nextCrossing.getY2() < c.getPosition().y && (firstCar == null || c.getPosition().y < firstCar.getPosition().y))
-            || (beltDirection == DirectionEnum.UP && nextCrossing.getY1() > c.getPosition().y && (firstCar == null || c.getPosition().y > firstCar.getPosition().y))){
+                    || (beltDirection == DirectionEnum.LEFT && nextCrossing.getX1() > c.getPosition().x && (firstCar == null || c.getPosition().x > firstCar.getPosition().x))
+                    || (beltDirection == DirectionEnum.DOWN && nextCrossing.getY2() < c.getPosition().y && (firstCar == null || c.getPosition().y < firstCar.getPosition().y))
+                    || (beltDirection == DirectionEnum.UP && nextCrossing.getY1() > c.getPosition().y && (firstCar == null || c.getPosition().y > firstCar.getPosition().y))) {
                 firstCar = c;
             }
         }
@@ -157,20 +161,20 @@ public class TrafficBelt {
 
     private boolean collisionBetweenTwoCars(Car car, Car c) {
         if (beltDirection == DirectionEnum.RIGHT &&
-            car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * getStoppingDistFact()
-            && car.getPosition().x < c.getPosition().x) {
+                car.getPosition().x + BELT_HEIGHT >= c.getPosition().x - BELT_HEIGHT * getStoppingDistFact()
+                && car.getPosition().x < c.getPosition().x) {
             return true;
         }
         if (beltDirection == DirectionEnum.LEFT && car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * getStoppingDistFact()
-            && car.getPosition().x > c.getPosition().x) {
+                && car.getPosition().x > c.getPosition().x) {
             return true;
         }
         if (beltDirection == DirectionEnum.DOWN && car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT * getStoppingDistFact()
-            && car.getPosition().y < c.getPosition().y) {
+                && car.getPosition().y < c.getPosition().y) {
             return true;
         }
         if (beltDirection == DirectionEnum.UP && car.getPosition().y - BELT_HEIGHT <= c.getPosition().y + BELT_HEIGHT * getStoppingDistFact()
-            && car.getPosition().y > c.getPosition().y) {
+                && car.getPosition().y > c.getPosition().y) {
             return true;
         }
         return false;
@@ -181,11 +185,11 @@ public class TrafficBelt {
             case RIGHT:
                 return car.getPosition().x < nextCrossing.getX1() - Math.abs(car.getMaxSpeed()) * 3;
             case LEFT:
-                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.getMaxSpeed())  * 3;
+                return car.getPosition().x > nextCrossing.getX2() + Math.abs(car.getMaxSpeed()) * 3;
             case UP:
-                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.getMaxSpeed())  * 3;
+                return car.getPosition().y > nextCrossing.getY2() + Math.abs(car.getMaxSpeed()) * 3;
             case DOWN:
-                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.getMaxSpeed())  * 3;
+                return car.getPosition().y < nextCrossing.getY1() - Math.abs(car.getMaxSpeed()) * 3;
         }
         return false;
     }
@@ -196,7 +200,7 @@ public class TrafficBelt {
             return true;
         }
         if (beltDirection == DirectionEnum.UP || beltDirection == DirectionEnum.DOWN) {
-          return nextCrossing.isVerticalGreen();
+            return nextCrossing.isVerticalGreen();
         }
         return nextCrossing.isHorizontalGreen();
     }
@@ -272,10 +276,10 @@ public class TrafficBelt {
                 }
             }
         }
-        synchronized (containingCars){
+        synchronized (containingCars) {
             containingCars.removeAll(carsToRemove);
             speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getMaxSpeedReached(), car.getAverageSpeed()))
-                .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));
             carsThatLeftTheStage += carsToRemove.size();
         }
         return carsViewsToRemove;
