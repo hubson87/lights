@@ -5,14 +5,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -58,7 +55,6 @@ public class MainController implements Initializable {
                     root = loader.load();
                     Stage stage = new Stage();
                     stage.setTitle("TrafficLights - terrain");
-                    stage.initModality(Modality.APPLICATION_MODAL);
                     Scene scene = new Scene(root, TERRAIN_WIDTH, TERRAIN_HEIGHT);
                     scene.getStylesheets().addAll(this.getClass().getResource("/resources/css/terrainStyles.css ").toExternalForm());
                     stage.setScene(scene);
@@ -72,6 +68,7 @@ public class MainController implements Initializable {
                             (int)carsLimit.getValue(),
                             timeSpinner.getValue(),
                             TERRAIN_WIDTH, TERRAIN_HEIGHT);
+                    ((Stage)generateButton.getScene().getWindow()).close();
                     stage.show();
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -35,6 +35,7 @@ public class TerrainController implements Initializable {
                 @Override
                 protected Object call() throws Exception {
                     simulationController.startSimulation(TerrainController.this);
+                    Platform.runLater(() -> startSimulationButton.setDisable(true));
                     return null;
                 }
             });
