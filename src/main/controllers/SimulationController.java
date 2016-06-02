@@ -159,15 +159,15 @@ public class SimulationController {
                                                  int verticalBeltsCount, int verticalBelts2Count) {
         List<TrafficBelt> res = new ArrayList<>();
         speedRadars = new ArrayList<>();
-        int leftBeltSpeedControlStart = (int)(windowWidth / 4.0 + verticalBeltsCount * (TrafficBelt.BELT_HEIGHT + 3.0)) + 10;
-        int leftBeltSpeedControlEnd = (int)(leftBeltSpeedControlStart + windowWidth / 6.0);
+        int leftBeltSpeedControlStart = (int)(3.0 * windowWidth / 4.0 - verticalBeltsCount * (TrafficBelt.BELT_HEIGHT + 3.0)) - 10;
+        int leftBeltSpeedControlEnd = (int)(leftBeltSpeedControlStart - windowWidth / 6.0);
 
-        int rightBeltSpeedControlStart = (int) (3.0 * windowWidth / 4.0 - verticalBelts2Count * (TrafficBelt.BELT_HEIGHT + 3.0)) - 10;
-        int rightBeltSpeedControlEnd = (int) (rightBeltSpeedControlStart - windowWidth / 6.0);
+        int rightBeltSpeedControlStart = (int) (windowWidth / 4.0 + verticalBelts2Count * (TrafficBelt.BELT_HEIGHT + 3.0)) + 10;
+        int rightBeltSpeedControlEnd = (int) (rightBeltSpeedControlStart + windowWidth / 6.0);
         int beltsYStart = windowHeight / 2 - horizontalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;   //we want to separate them
 
-        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlStart + 10, beltsYStart - 40)));
-        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlEnd + 10, beltsYStart - 40)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlStart - 10, beltsYStart - 40)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlEnd - 10, beltsYStart - 40)));
 
         for (int i = 0; i < horizontalBeltsCount; i++) {
             TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
@@ -183,8 +183,8 @@ public class SimulationController {
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
 
-        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlStart - 10, beltsYStart + 10)));
-        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlEnd - 10, beltsYStart + 10)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlStart + 10, beltsYStart + 10)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlEnd + 10, beltsYStart + 10)));
         return res;
     }
 

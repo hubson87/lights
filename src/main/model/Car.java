@@ -6,7 +6,6 @@ import main.model.enums.DirectionEnum;
 
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 public class Car extends ImageView {
     private Integer maxSpeed;
@@ -21,8 +20,11 @@ public class Car extends ImageView {
     private long allSpeedsMeasured = 0L;
     private int allMovesCount = 0;
     private int maxSpeedReached = 0;
+    private LocalDateTime radarSpeedMeasureStarted;
+    private LocalDateTime radarSpeedMeasureEnd;
+    private Integer radarSpeedStartX, radarSpeedEndX;
 
-    public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos) {
+    public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos, Integer radarSpeedStartX, Integer radarSpeedEndX) {
         super();
         if (direction == null) {
             throw new IllegalArgumentException("Direction must be defined");
@@ -36,6 +38,8 @@ public class Car extends ImageView {
         this.maxSpeed = maxSpeed;
         this.speed = maxSpeed / 4;
         this.acceleration = (double)maxSpeed / 10.0;
+        this.radarSpeedStartX = radarSpeedStartX;
+        this.radarSpeedEndX = radarSpeedEndX;
     }
 
     private void loadImgAndResize(int startPosX, int startPosY) {
@@ -78,7 +82,31 @@ public class Car extends ImageView {
         }
         allSpeedsMeasured += absSpeed;
         ++allMovesCount;
+        checkAndMarkRadars(position);
         return position;
+    }
+
+    private void checkAndMarkRadars(Point position) {
+        if (xDirection == 0) {
+            return;
+        }
+        if (xDirection > 0 && radarSpeedMeasureEnd == null) {   //so the measurement is not over yet
+            if (position.x > radarSpeedStartX && radarSpeedMeasureStarted == null) {
+                radarSpeedMeasureStarted = LocalDateTime.now();
+            }
+            if (position.x > radarSpeedEndX) {
+                radarSpeedMeasureEnd = LocalDateTime.now();
+            }
+        }
+
+        if (xDirection < 0 && radarSpeedMeasureEnd == null) {
+            if (position.x < radarSpeedStartX && radarSpeedMeasureStarted == null) {
+                radarSpeedMeasureStarted = LocalDateTime.now();
+            }
+            if (position.x < radarSpeedEndX) {
+                radarSpeedMeasureEnd = LocalDateTime.now();
+            }
+        }
     }
 
     public void changeMaxSpeed(int newMaxSpeed) {

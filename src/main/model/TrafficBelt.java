@@ -61,7 +61,7 @@ public class TrafficBelt {
         if (containingCars.size() >= carsLimit) {
             return null;
         }
-        Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart);
+        Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart, speedControlXStart, speedControlXEnd);
         if (hasAnyPossibleCollision(car)) {
             return null;
         }
