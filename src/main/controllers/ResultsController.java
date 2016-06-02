@@ -22,7 +22,7 @@ public class ResultsController implements Initializable {
     private Button goBackBtn;
 
     private static int WINDOW_WIDTH = 800;
-    private static int WINDOW_HEIGHT = 600;
+    private static int WINDOW_HEIGHT = 400;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

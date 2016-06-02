@@ -28,6 +28,8 @@ public class TerrainController implements Initializable {
     Pane terrainMainPanel;
     @FXML
     Button startSimulationButton;
+    private static int WINDOW_WIDTH = 800;
+    private static int WINDOW_HEIGHT = 600;
 
     private SimulationController simulationController;
     private ImageView currentWeather;
@@ -114,7 +116,7 @@ public class TerrainController implements Initializable {
             root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Results screen");
-            Scene scene = new Scene(root, windowWidth, windowHeight);
+            Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
             stage.setScene(scene);
             stage.setResizable(false);
             ResultsController resultsController = loader.getController();

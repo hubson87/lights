@@ -18,7 +18,19 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 
+/**
+ * Created by Krzysztof Baran
+ * Narzędzia służące do eksportu wyników symulacji do pliku excel
+ */
 public class ExcelUtils {
+    /**
+     * Funkcja główna, której zadaniem jest utwożenie nowego dokumentu typu excel oraz workbooka.
+     * Dodatkowo woła funkcje pomocnicze do eksportu poszczególnych zakładek dokumentu.
+     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param weatherConditions Lista warunków pogodowych jakie panowały na drodze podczas symulacji
+     * @param simulationDuration Czas trwania symulacji w sekundach
+     * @return Nazwa pliku z podsumowaniem, który został utworzony przez aplikację
+     */
     public static String exportResults(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions, long simulationDuration) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
@@ -43,6 +55,18 @@ public class ExcelUtils {
         return null;
     }
 
+    /**
+     * Funkcja tworząca arkusz 'SimulationSummary'.
+     * Zapisuje kolejno:
+     * 1. Czas trwania symulacji
+     * 2. Ilość samochodów, które opuściły ekran symulacji (zliczane z wszystkich pasów drogowych)
+     * 3. Kolejno panujące warunki pogodowe na drodze
+     * 4. Wyszczególnienie ilości saochodów, które opuściły scenę symulacji dla każdego z pasów drogowych
+     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param weatherConditions Lista warunków pogodowych jakie panowały na drodze podczas symulacji
+     * @param simulationDuration Czas trwania symulacji w sekundach
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportCarsSimulationTimeAndWeather(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions,
                                                            long simulationDuration, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("SimulationSummary");
@@ -77,6 +101,14 @@ public class ExcelUtils {
         }
     }
 
+    /**
+     * Funkcja, której zadaniem jest utworzenie arkusza 'CarsLeftTheStageDuringWeather'
+     * Zbiera wyniki z wszystkich pasów, a następnie pobiera dane o ilości samochodów, które opuściły każdy z pasów
+     * w danych warunkach pogodowych. Następnie zapisywane jest podsumowanie,
+     * w których nie wyszczególniamy pasów drogowych.
+     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportCarsThatLeftDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("CarsLeftTheStageDuringWeather");
         int rowNum = 0;
@@ -109,6 +141,13 @@ public class ExcelUtils {
         }
     }
 
+    /**
+     * Funkcja, która tworzy arkusz 'SpeedForWeather'
+     * Funkcja ta dla każdego z pasów, a następnie dla każdego z samochodów zapisuje pogodę oraz średnią prędkość
+     * jaką posiadał samochód w zadanych warunkach pogodowych
+     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportSpeedDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("SpeedForWeather");
         int rowNum = 0;
@@ -136,6 +175,14 @@ public class ExcelUtils {
         }
     }
 
+    /**
+     * Funkcja tworząca arkusz 'OverSpeedMeasurements'
+     * Funkcja zbiera z wszystkich samochodów odcinkowe pomiary prędkości na poszczególnych pasach (jeśli istnieje),
+     * a następnie sprawdzamy, czy prędkość na danym odcinku przekracza dozwoloną prędkość na trasie (120 km/h).
+     * Jeśli tak, to rejestruje zadany przypadek na arkuszu.
+     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportOverSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("OverSpeedMeasurements");
         int rowNum = 0;
@@ -155,6 +202,13 @@ public class ExcelUtils {
         }
     }
 
+    /**
+     * Funkcja tworząca arkusz 'SpeedMeasurements'
+     * Zbiera ona dla wszystkich samochodów wartości pomiarów odcinkowych i zapisuje je na formularzu
+     * (z podziałem na pasy)
+     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("SpeedMeasurements");
         int rowNum = 0;
@@ -177,6 +231,13 @@ public class ExcelUtils {
         }
     }
 
+    /**
+     * Funkcja tworząca arkusz 'AverageSpeedResults'
+     * Zadaniem jej jest pobranie ze wszystkich samochodów średnich prędkości przejazdów przez całą przebytą trasę.
+     * Prędkości te rejestrowane są z podziałem na pasy drogowe
+     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
     private static void exportSpeeds(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("AverageSpeedResults");
         int rowNum = 0;
