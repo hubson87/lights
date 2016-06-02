@@ -187,4 +187,8 @@ public class Car extends ImageView {
     public int getMaxSpeed() {
         return maxSpeed;
     }
+
+    public Map<WeatherEnum, List<Long>> getSpeedsForWeather() {
+        return speedsForWeather;
+    }
 }

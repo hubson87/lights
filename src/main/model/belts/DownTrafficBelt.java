@@ -78,7 +78,7 @@ public class DownTrafficBelt extends TrafficBelt {
         }
         synchronized (containingCars) {
             containingCars.removeAll(carsToRemove);
-            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed()))
+            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
                 .collect(Collectors.toList()));
             carsThatLeftTheStage += carsToRemove.size();
         }

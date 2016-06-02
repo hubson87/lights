@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import main.model.belts.TrafficBelt;
+import main.model.enums.WeatherEnum;
 import main.model.results.SpeedResult;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -25,6 +26,7 @@ public class ExcelUtils {
             exportSpeeds(allBelts, workbook);
             exportSpeedMeasurements(allBelts, workbook);
             exportOverSpeedMeasurements(allBelts, workbook);
+            exportSpeedDuringTheWeather(allBelts, workbook);
             workbook.write(fos);
             fos.flush();
             fos.close();
@@ -35,6 +37,33 @@ public class ExcelUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static void exportSpeedDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
+        HSSFSheet sheet = workbook.createSheet("SpeedForWeather");
+        int rowNum = 0;
+        for (TrafficBelt belt : allBelts) {
+            HSSFRow row = sheet.createRow(rowNum++);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
+            for (SpeedResult speedResult : belt.getSpeedResults()) {
+                for (WeatherEnum weather : speedResult.getWeatherSpeeds().keySet()) {
+                    if (speedResult.getWeatherSpeeds().get(weather).size() == 1 && speedResult.getWeatherSpeeds().get(weather).get(0) == 0L) {
+                        continue;
+                    }
+                    HSSFRow speedRow = sheet.createRow(rowNum++);
+                    int cellNo = 0;
+                    Cell weatherNameCell = speedRow.createCell(cellNo++);
+                    weatherNameCell.setCellValue(weather.toString());
+                    for (Long speed : speedResult.getWeatherSpeeds().get(weather)) {
+                        if (speed == 0) {
+                            continue;
+                        }
+                        speedRow.createCell(cellNo++).setCellValue(speed);
+                    }
+                }
+            }
+        }
     }
 
     private static void exportOverSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {

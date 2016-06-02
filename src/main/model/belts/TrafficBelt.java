@@ -68,7 +68,7 @@ public abstract class TrafficBelt {
         return car;
     }
 
-    public void changeCarsSpeed(WeatherEnum weatherConditions) {
+    public synchronized void changeCarsSpeed(WeatherEnum weatherConditions) {
         for (Car car : containingCars) {
             car.changeMaxSpeed(randomMaxSpeedForCar(weatherConditions), weatherConditions);
         }
