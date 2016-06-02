@@ -78,8 +78,8 @@ public class TrafficBelt {
     }
 
     private synchronized int randomMaxSpeedForCar(WeatherEnum weatherConditions) {
-        if (random.nextInt(10) == 1) {
-            return new Random().nextInt(weatherConditions.getFasterRandomFactor()) + weatherConditions.getFasterMinFactor();
+        if (random.nextInt(weatherConditions.getFasterCarProbabilityOneTo()) == 1) {
+            return random.nextInt(weatherConditions.getFasterRandomFactor()) + weatherConditions.getFasterMinFactor();
         }
         return random.nextInt(weatherConditions.getSlowerRandomFactor()) + weatherConditions.getSlowerMinFactor();
     }
