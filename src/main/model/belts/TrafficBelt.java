@@ -13,6 +13,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public abstract class TrafficBelt {
     private static final Integer MAX_TRIES_FOR_LIGHTS_SWITCH_ALGORITHM = 200;
@@ -167,6 +168,15 @@ public abstract class TrafficBelt {
 
     protected synchronized List<ImageView> cleanup() {
         return null;
+    }
+
+    protected void clear(List<Car> carsToRemove) {
+        synchronized (containingCars) {
+            containingCars.removeAll(carsToRemove);
+            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
+                .collect(Collectors.toList()));
+            carsThatLeftTheStage += carsToRemove.size();
+        }
     }
 
     public DirectionEnum getBeltDirection() {

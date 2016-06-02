@@ -66,21 +66,14 @@ public class LeftTrafficBelt extends TrafficBelt {
 
     @Override
     protected synchronized List<ImageView> cleanup() {
-        java.util.List<ImageView> carsViewsToRemove = new ArrayList<>();
-        java.util.List<Car> carsToRemove = new ArrayList<>();
-        for (Car car : containingCars) {
-            if (car.getX() + car.getFitWidth() <= 0) {
-                carsViewsToRemove.add(car);
-                carsToRemove.add(car);
-                car.carRemoveLogic();
-            }
-        }
-        synchronized (containingCars) {
-            containingCars.removeAll(carsToRemove);
-            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
-                .collect(Collectors.toList()));
-            carsThatLeftTheStage += carsToRemove.size();
-        }
+        List<ImageView> carsViewsToRemove = new ArrayList<>();
+        List<Car> carsToRemove = new ArrayList<>();
+        containingCars.stream().filter(car -> car.getX() + car.getFitWidth() <= 0).forEach(car -> {
+            carsViewsToRemove.add(car);
+            carsToRemove.add(car);
+            car.carRemoveLogic();
+        });
+        clear(carsToRemove);
         return carsViewsToRemove;
     }
 }

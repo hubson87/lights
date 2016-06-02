@@ -68,19 +68,12 @@ public class RightTrafficBelt extends TrafficBelt {
     protected synchronized List<ImageView> cleanup() {
         List<ImageView> carsViewsToRemove = new ArrayList<>();
         List<Car> carsToRemove = new ArrayList<>();
-        for (Car car : containingCars) {
-            if (car.getX() >= beltXEnd) {
-                carsViewsToRemove.add(car);
-                carsToRemove.add(car);
-                car.carRemoveLogic();
-            }
-        }
-        synchronized (containingCars) {
-            containingCars.removeAll(carsToRemove);
-            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
-                .collect(Collectors.toList()));
-            carsThatLeftTheStage += carsToRemove.size();
-        }
+        containingCars.stream().filter(car -> car.getX() >= beltXEnd).forEach(car -> {
+            carsViewsToRemove.add(car);
+            carsToRemove.add(car);
+            car.carRemoveLogic();
+        });
+        clear(carsToRemove);
         return carsViewsToRemove;
     }
 }
