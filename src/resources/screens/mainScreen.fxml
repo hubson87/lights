@@ -20,8 +20,8 @@
     <Slider fx:id="horizontalBeltsCount" min="1" max="4" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="3"
             showTickLabels="true" showTickMarks="true" majorTickUnit="1" minorTickCount="0" snapToTicks="true"/>
     <Label text="Cars limit" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-    <Slider fx:id="carsLimit" min="50" max="250" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="4"
-            showTickLabels="true" showTickMarks="true" majorTickUnit="50" minorTickCount="0" snapToTicks="true"/>
+    <Slider fx:id="carsLimit" min="20" max="100" blockIncrement="1" GridPane.columnIndex="1" GridPane.rowIndex="4"
+            showTickLabels="true" showTickMarks="true" majorTickUnit="20" minorTickCount="0" snapToTicks="true"/>
     <Label text="Weather:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
     <GridPane GridPane.columnIndex="1" GridPane.rowIndex="5">
         <RadioButton fx:id="sunnyRB" toggleGroup="$weatherGroup" text="Sunny" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="80"/>

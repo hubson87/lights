@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import main.model.belts.TrafficBelt;
 import main.model.enums.DirectionEnum;
 import main.model.enums.WeatherEnum;
+import main.utils.DateUtils;
 
 import java.awt.Point;
 import java.time.Duration;
@@ -178,9 +179,7 @@ public class Car extends ImageView {
 
     private long calculateSpeedStats(double position1, double position2, LocalDateTime timeStart, LocalDateTime timeEnd) {
         double distance = Math.abs(position1 - position2) / 25.0 * 4.0; //25pixels is 4 kilometers distance
-        double time =
-            TimeUnit.MILLISECONDS.convert(Duration.between(timeStart, timeEnd).toNanos(), TimeUnit.NANOSECONDS) /
-                500.0;   //0.5s = 1hour
+        double time = DateUtils.calculateInMilliSeconds(timeStart, timeEnd) / 500.0;   //0.5s = 1hour
         return (long) (distance / time);
     }
 

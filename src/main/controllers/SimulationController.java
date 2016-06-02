@@ -11,8 +11,10 @@ import main.model.TrafficLightsAndCrossing;
 import main.model.belts.UpTrafficBelt;
 import main.model.enums.AlgorithmType;
 import main.model.enums.WeatherEnum;
+import main.utils.DateUtils;
 import main.utils.ExcelUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,7 @@ public class SimulationController {
     private List<SpeedRadar> speedRadars;
     private int simulationTime;
     private WeatherEnum weatherConditions;
+    private List<WeatherEnum> weatherConditionsList;
     private final boolean dynamicWeather;
 
     public SimulationController(WeatherEnum weatherConditions, AlgorithmType algorithmType, int verticalBeltsCount, int verticalBelts2Count,
@@ -36,6 +39,8 @@ public class SimulationController {
 
         this.dynamicWeather = weatherConditions == null;
         this.weatherConditions = weatherConditions == null ? WeatherEnum.getRandom() : weatherConditions;
+        weatherConditionsList = new ArrayList<>();
+        weatherConditionsList.add(this.weatherConditions);
         verticalBelts = initVerticalBelts(verticalBeltsCount, height, width, carsLimit, width / 4);
         verticalBelts2 = initVerticalBelts(verticalBelts2Count, height, width, carsLimit, 3 * width / 4);
         horizontalBelts = initHorizontalBelts(horizontalBeltsCount, height, width, carsLimit, verticalBeltsCount, verticalBelts2Count);
@@ -63,6 +68,7 @@ public class SimulationController {
         final int taskPeriod = 30;
         final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
+        final LocalDateTime iterationStart = LocalDateTime.now();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -70,8 +76,11 @@ public class SimulationController {
                 synchronized (interval) {
                     if (--interval[0] <= 1) {
                         timer.cancel();
-                        String resFilename = collectResultsToFiles();
-                        Platform.runLater(() -> terrainController.showResultsScreen(resFilename));
+                        synchronized (weatherConditionsList) {
+                            String resFilename = collectResultsToFiles(DateUtils.calculateInSeconds(iterationStart, LocalDateTime.now()),
+                                weatherConditionsList);
+                            Platform.runLater(() -> terrainController.showResultsScreen(resFilename));
+                        }
                     }
                 }
             }
@@ -101,6 +110,9 @@ public class SimulationController {
                 public void run() {
                     synchronized (weatherConditions) {
                         weatherConditions = WeatherEnum.getRandom();
+                        synchronized (weatherConditionsList) {
+                            weatherConditionsList.add(weatherConditions);
+                        }
                         Platform.runLater(() -> terrainController.setWeatherSign(weatherConditions));
                         TrafficBelt.setStoppingDistFact(weatherConditions.getStoppingDistanceFactor());
                         for (TrafficBelt belt : getAllBelts()) {
@@ -112,8 +124,8 @@ public class SimulationController {
         }
     }
 
-    private String collectResultsToFiles() {
-        return ExcelUtils.exportResults(getAllBelts());
+    private synchronized String collectResultsToFiles(long simulationTimeInSeconds, List<WeatherEnum> weatherConditionsList) {
+        return ExcelUtils.exportResults(getAllBelts(), weatherConditionsList, simulationTimeInSeconds);
     }
 
     private void simulationIteration(final TerrainController terrainController) {

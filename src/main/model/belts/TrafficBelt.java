@@ -30,13 +30,15 @@ public abstract class TrafficBelt {
     protected int beltXStart, beltYStart, beltXEnd, beltYEnd;
     protected List<TrafficLightsAndCrossing> crossingAndLights;
     protected List<SpeedResult> speedResults;
-    protected Map<WeatherEnum, Long> carsThatLeftTheStage;
+    protected Map<WeatherEnum, Long> carsThatLeftTheStageWithWeather;
+    protected long carsThatLeftTheStage;
     private final Integer speedControlXStart, speedControlXEnd;
     private Integer addCarTriesFailure;
 
     public TrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
                        Integer speedControlXStart, Integer speedControlXEnd) {
-        carsThatLeftTheStage = new HashMap<>();
+        carsThatLeftTheStageWithWeather = new HashMap<>();
+        carsThatLeftTheStage = 0L;
         addCarTriesFailure = 0;
         this.beltNumber = beltNumber;
         this.carsLimit = carsLimit;
@@ -170,15 +172,16 @@ public abstract class TrafficBelt {
             speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
                 .collect(Collectors.toList()));
             countWeatherCars(carsToRemove);
+            carsThatLeftTheStage += carsToRemove.size();
         }
     }
 
     private synchronized void countWeatherCars(List<Car> carsToRemove) {
         for (Car car : carsToRemove) {
-            if (!carsThatLeftTheStage.containsKey(car.getCurrentWeather())) {
-                carsThatLeftTheStage.put(car.getCurrentWeather(), 0L);
+            if (!carsThatLeftTheStageWithWeather.containsKey(car.getCurrentWeather())) {
+                carsThatLeftTheStageWithWeather.put(car.getCurrentWeather(), 0L);
             }
-            carsThatLeftTheStage.put(car.getCurrentWeather(), carsThatLeftTheStage.get(car.getCurrentWeather()) + 1);
+            carsThatLeftTheStageWithWeather.put(car.getCurrentWeather(), carsThatLeftTheStageWithWeather.get(car.getCurrentWeather()) + 1);
         }
     }
 
@@ -215,7 +218,11 @@ public abstract class TrafficBelt {
         this.addCarTriesFailure = 0;
     }
 
-    public Map<WeatherEnum, Long> getCarsThatLeftTheStage() {
+    public Map<WeatherEnum, Long> getCarsThatLeftTheStageWithWeather() {
+        return carsThatLeftTheStageWithWeather;
+    }
+
+    public long getCarsThatLeftTheStage() {
         return carsThatLeftTheStage;
     }
 }

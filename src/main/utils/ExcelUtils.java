@@ -19,17 +19,18 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 
 public class ExcelUtils {
-    public static String exportResults(List<TrafficBelt> allBelts) {
+    public static String exportResults(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions, long simulationDuration) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             String filename = "speeds_" + formatter.format(LocalDateTime.now()) + ".xls";
             FileOutputStream fos = new FileOutputStream(filename);
             HSSFWorkbook workbook = new HSSFWorkbook();
+            exportCarsSimulationTimeAndWeather(allBelts, weatherConditions, simulationDuration, workbook);
+            exportCarsThatLeftDuringTheWeather(allBelts, workbook);
             exportSpeeds(allBelts, workbook);
             exportSpeedMeasurements(allBelts, workbook);
             exportOverSpeedMeasurements(allBelts, workbook);
             exportSpeedDuringTheWeather(allBelts, workbook);
-            exportCarsThatLeftDuringTheWeather(allBelts, workbook);
             workbook.write(fos);
             fos.flush();
             fos.close();
@@ -42,6 +43,40 @@ public class ExcelUtils {
         return null;
     }
 
+    private static void exportCarsSimulationTimeAndWeather(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions,
+                                                           long simulationDuration, HSSFWorkbook workbook) {
+        HSSFSheet sheet = workbook.createSheet("SimulationSummary");
+        int rowNum = 0;
+        int cellNum = 0;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(cellNum++).setCellValue("Simulation time");
+        row.createCell(cellNum++).setCellValue(simulationDuration + "s.");
+        cellNum = 0;
+        row = sheet.createRow(rowNum++);
+        row.createCell(cellNum++).setCellValue("All cars that left the stage");
+        long allCarsCount = 0;
+        for (TrafficBelt belt : allBelts) {
+            allCarsCount += belt.getCarsThatLeftTheStage();
+        }
+        row.createCell(cellNum++).setCellValue(allCarsCount);
+        cellNum = 0;
+        row = sheet.createRow(rowNum++);
+        row.createCell(cellNum++).setCellValue("Weather conditions");
+        for (WeatherEnum weatherCondition : weatherConditions) {
+            row.createCell(cellNum++).setCellValue(weatherCondition.toString());
+        }
+        row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Cars that left the stage on belts");
+        ++rowNum;
+        row = sheet.createRow(rowNum++);
+        for (TrafficBelt belt : allBelts) {
+            cellNum = 0;
+            row = sheet.createRow(rowNum++);
+            row.createCell(cellNum++).setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
+            row.createCell(cellNum++).setCellValue(belt.getCarsThatLeftTheStage());
+        }
+    }
+
     private static void exportCarsThatLeftDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
         HSSFSheet sheet = workbook.createSheet("CarsLeftTheStageDuringWeather");
         int rowNum = 0;
@@ -50,7 +85,7 @@ public class ExcelUtils {
             HSSFRow row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
             cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
-            for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : belt.getCarsThatLeftTheStage().entrySet()) {
+            for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : belt.getCarsThatLeftTheStageWithWeather().entrySet()) {
                 HSSFRow entryRow = sheet.createRow(rowNum++);
                 int cellNo = 0;
                 entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getKey().toString());
