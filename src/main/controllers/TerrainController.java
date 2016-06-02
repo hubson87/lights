@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import main.model.SpeedLimitSign;
 import main.model.SpeedRadar;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
@@ -81,6 +82,14 @@ public class TerrainController implements Initializable {
 
         if (simulationController.getSpeedRadars() != null && !simulationController.getSpeedRadars().isEmpty()) {
             terrainMainPanel.getChildren().addAll(simulationController.getSpeedRadars());
+            for (int i = 0; i < simulationController.getSpeedRadars().size(); i+=2) {
+                double x1 = simulationController.getSpeedRadars().get(i).getX();
+                double x2 = simulationController.getSpeedRadars().get(i+1).getX();
+                double lowerX = x1 < x2 ? x1 : x2;
+                double biggerX = x1 > x2 ? x1 : x2;
+                double x = lowerX + (biggerX - lowerX) / 2.0 + 10;
+                terrainMainPanel.getChildren().add(new SpeedLimitSign(x, simulationController.getSpeedRadars().get(i).getY()));
+            }
         }
         setWeatherSign(simulationController.getWeatherConditions());
     }

@@ -104,7 +104,7 @@ public class SimulationController {
     }
 
     private String collectResultsToFiles() {
-        return ExcelUtils.exportSpeeds(getAllBelts());
+        return ExcelUtils.exportResults(getAllBelts());
     }
 
     private void simulationIteration(final TerrainController terrainController) {
@@ -137,18 +137,20 @@ public class SimulationController {
     }
 
     private List<TrafficBelt> initVerticalBelts(int verticalBeltsCount, int windowHeight, int windowWidth, int carsLimit, int offset) {
-        List<TrafficBelt> res = new ArrayList<TrafficBelt>();
+        List<TrafficBelt> res = new ArrayList<>();
         int beltsXStart = offset - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;   //we want to separate them
+        int beltNr = 1;
         for (int i = 0; i < verticalBeltsCount; i++) {
             TrafficBelt belt =
-                new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.DOWN, null, null);
+                new TrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.DOWN, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsXStart += 6;
+        beltNr = 1;
         for (int i = 0; i < verticalBeltsCount; i++) {
             TrafficBelt belt =
-                new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.UP, null, null);
+                new TrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.UP, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
@@ -168,16 +170,17 @@ public class SimulationController {
 
         speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlStart - 10, beltsYStart - 40)));
         speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlEnd - 10, beltsYStart - 40)));
-
+        int beltNr = 1;
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
+            TrafficBelt belt = new TrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
                 DirectionEnum.LEFT, leftBeltSpeedControlStart, leftBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsYStart += 6;
+        beltNr = 1;
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
+            TrafficBelt belt = new TrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
                 DirectionEnum.RIGHT, rightBeltSpeedControlStart, rightBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;

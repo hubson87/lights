@@ -1,19 +1,19 @@
 package main.model.results;
 
 public class SpeedResult {
-    private final int maxSpeedReached;
     private final long averageSpeed;
+    private final String radarSpeed;
 
-    public SpeedResult(int maxSpeedReached, long averageSpeed) {
-        this.maxSpeedReached = maxSpeedReached;
+    public SpeedResult(long averageSpeed, String radarSpeed) {
         this.averageSpeed = averageSpeed;
-    }
-
-    public int getMaxSpeedReached() {
-        return maxSpeedReached;
+        this.radarSpeed = radarSpeed;
     }
 
     public long getAverageSpeed() {
         return averageSpeed;
+    }
+
+    public String getRadarSpeed() {
+        return radarSpeed;
     }
 }

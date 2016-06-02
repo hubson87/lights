@@ -17,6 +17,7 @@ public class TrafficBelt {
     private final Random random = new Random();
     public static final int BELT_HEIGHT = 20;
     private static Double STOPPING_DIST_FACT = 1.5;
+    private final int beltNumber;
     private int carsLimit;
     private Rectangle beltRect;
     private List<Car> containingCars;
@@ -27,9 +28,10 @@ public class TrafficBelt {
     private int carsThatLeftTheStage;
     private final Integer speedControlXStart, speedControlXEnd;
 
-    public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
+    public TrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
                        Integer speedControlXStart, Integer speedControlXEnd) {
         carsThatLeftTheStage = 0;
+        this.beltNumber = beltNumber;
         this.carsLimit = carsLimit;
         speedResults = new ArrayList<>();
         this.containingCars = new ArrayList<>();
@@ -278,7 +280,7 @@ public class TrafficBelt {
         }
         synchronized (containingCars) {
             containingCars.removeAll(carsToRemove);
-            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getMaxSpeedReached(), car.getAverageSpeed()))
+            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed()))
                     .collect(Collectors.toList()));
             carsThatLeftTheStage += carsToRemove.size();
         }
@@ -303,5 +305,9 @@ public class TrafficBelt {
         synchronized (STOPPING_DIST_FACT) {
             STOPPING_DIST_FACT = stoppingDistFact;
         }
+    }
+
+    public int getBeltNumber() {
+        return beltNumber;
     }
 }

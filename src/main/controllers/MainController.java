@@ -13,6 +13,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.stage.Stage;
 import main.model.enums.WeatherEnum;
+import main.utils.NumberUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,11 +50,11 @@ public class MainController implements Initializable {
         sunnyRB.setSelected(true);
         timeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                if (isInteger(newValue)) {
+                if (NumberUtils.isInteger(newValue)) {
                     timeSpinner.getValueFactory().setValue(Integer.parseInt(newValue));
                 }
             } catch (NumberFormatException e) {
-                if (isInteger(oldValue)) {
+                if (NumberUtils.isInteger(oldValue)) {
                     timeSpinner.getValueFactory().setValue(Integer.parseInt(oldValue));
                 }
             }
@@ -103,17 +104,5 @@ public class MainController implements Initializable {
             return WeatherEnum.FOGGY;
         }
         return null;
-    }
-
-    private boolean isInteger(String value) {
-        if (value == null) {
-            return false;
-        }
-        try {
-            new Integer(value);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }
