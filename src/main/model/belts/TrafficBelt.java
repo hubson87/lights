@@ -11,7 +11,9 @@ import main.model.results.SpeedResult;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -28,13 +30,13 @@ public abstract class TrafficBelt {
     protected int beltXStart, beltYStart, beltXEnd, beltYEnd;
     protected List<TrafficLightsAndCrossing> crossingAndLights;
     protected List<SpeedResult> speedResults;
-    protected int carsThatLeftTheStage;
+    protected Map<WeatherEnum, Long> carsThatLeftTheStage;
     private final Integer speedControlXStart, speedControlXEnd;
     private Integer addCarTriesFailure;
 
     public TrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
                        Integer speedControlXStart, Integer speedControlXEnd) {
-        carsThatLeftTheStage = 0;
+        carsThatLeftTheStage = new HashMap<>();
         addCarTriesFailure = 0;
         this.beltNumber = beltNumber;
         this.carsLimit = carsLimit;
@@ -154,30 +156,32 @@ public abstract class TrafficBelt {
         return false;
     }
 
-    protected boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        return false;
-    }
+    protected abstract boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing) ;
 
-    protected synchronized boolean hasGreenLight(TrafficLightsAndCrossing nextCrossing) {
-        return false;
-    }
+    protected abstract boolean hasGreenLight(TrafficLightsAndCrossing nextCrossing) ;
 
-    protected TrafficLightsAndCrossing getNextCrossingAndLights(Point carPos) {
-        return null;
-    }
+    protected abstract TrafficLightsAndCrossing getNextCrossingAndLights(Point carPos);
 
-    protected synchronized List<ImageView> cleanup() {
-        return null;
-    }
+    protected abstract List<ImageView> cleanup();
 
     protected void clear(List<Car> carsToRemove) {
         synchronized (containingCars) {
             containingCars.removeAll(carsToRemove);
             speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
                 .collect(Collectors.toList()));
-            carsThatLeftTheStage += carsToRemove.size();
+            countWeatherCars(carsToRemove);
         }
     }
+
+    private synchronized void countWeatherCars(List<Car> carsToRemove) {
+        for (Car car : carsToRemove) {
+            if (!carsThatLeftTheStage.containsKey(car.getCurrentWeather())) {
+                carsThatLeftTheStage.put(car.getCurrentWeather(), 0L);
+            }
+            carsThatLeftTheStage.put(car.getCurrentWeather(), carsThatLeftTheStage.get(car.getCurrentWeather()) + 1);
+        }
+    }
+
 
     public DirectionEnum getBeltDirection() {
         return beltDirection;
@@ -209,5 +213,9 @@ public abstract class TrafficBelt {
 
     public synchronized void resetCarsTriesCounter() {
         this.addCarTriesFailure = 0;
+    }
+
+    public Map<WeatherEnum, Long> getCarsThatLeftTheStage() {
+        return carsThatLeftTheStage;
     }
 }

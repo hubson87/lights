@@ -3,13 +3,11 @@ package main.model.belts;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javafx.scene.image.ImageView;
 import main.model.Car;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
-import main.model.results.SpeedResult;
 
 public class DownTrafficBelt extends TrafficBelt {
     public DownTrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, Integer speedControlXStart,

@@ -191,4 +191,8 @@ public class Car extends ImageView {
     public Map<WeatherEnum, List<Long>> getSpeedsForWeather() {
         return speedsForWeather;
     }
+
+    public WeatherEnum getCurrentWeather() {
+        return currentWeather;
+    }
 }

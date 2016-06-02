@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import main.model.belts.TrafficBelt;
 import main.model.enums.WeatherEnum;
@@ -21,12 +23,13 @@ public class ExcelUtils {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             String filename = "speeds_" + formatter.format(LocalDateTime.now()) + ".xls";
-            FileOutputStream fos =  new FileOutputStream(filename);
+            FileOutputStream fos = new FileOutputStream(filename);
             HSSFWorkbook workbook = new HSSFWorkbook();
             exportSpeeds(allBelts, workbook);
             exportSpeedMeasurements(allBelts, workbook);
             exportOverSpeedMeasurements(allBelts, workbook);
             exportSpeedDuringTheWeather(allBelts, workbook);
+            exportCarsThatLeftDuringTheWeather(allBelts, workbook);
             workbook.write(fos);
             fos.flush();
             fos.close();
@@ -37,6 +40,38 @@ public class ExcelUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static void exportCarsThatLeftDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
+        HSSFSheet sheet = workbook.createSheet("CarsLeftTheStageDuringWeather");
+        int rowNum = 0;
+        Map<WeatherEnum, Long> allResultsWithoutBeltsDivision = new HashMap<>();
+        for (TrafficBelt belt : allBelts) {
+            HSSFRow row = sheet.createRow(rowNum++);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
+            for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : belt.getCarsThatLeftTheStage().entrySet()) {
+                HSSFRow entryRow = sheet.createRow(rowNum++);
+                int cellNo = 0;
+                entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getKey().toString());
+                entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getValue());
+
+                if (!allResultsWithoutBeltsDivision.containsKey(weatherEnumLongEntry.getKey())) {
+                    allResultsWithoutBeltsDivision.put(weatherEnumLongEntry.getKey(), 0L);
+                }
+                allResultsWithoutBeltsDivision.put(weatherEnumLongEntry.getKey(),
+                    allResultsWithoutBeltsDivision.get(weatherEnumLongEntry.getKey()) + weatherEnumLongEntry.getValue());
+            }
+        }
+        rowNum+=2;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Results without belts division:");
+        for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : allResultsWithoutBeltsDivision.entrySet()) {
+            HSSFRow entryRow = sheet.createRow(rowNum++);
+            int cellNo = 0;
+            entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getKey().toString());
+            entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getValue());
+        }
     }
 
     private static void exportSpeedDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
