@@ -8,8 +8,7 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-public class Car {
-    private ImageView imageView;
+public class Car extends ImageView {
     private Integer maxSpeed;
     private int speed;
     private Point position;
@@ -24,10 +23,11 @@ public class Car {
     private int maxSpeedReached = 0;
 
     public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos) {
+        super();
         if (direction == null) {
             throw new IllegalArgumentException("Direction must be defined");
         }
-        imageView = loadImgAndResize(beltXPos, beltYPos);
+        loadImgAndResize(beltXPos, beltYPos);
         xDirection = direction == DirectionEnum.RIGHT ? 1 : (direction == DirectionEnum.LEFT ? -1 : 0);
         yDirection = direction == DirectionEnum.DOWN ? 1 : (direction == DirectionEnum.UP ? -1 : 0);
         this.position = new Point(beltXPos, beltYPos);
@@ -38,32 +38,31 @@ public class Car {
         this.acceleration = (double)maxSpeed / 10.0;
     }
 
-    private ImageView loadImgAndResize(int startPosX, int startPosY) {
+    private void loadImgAndResize(int startPosX, int startPosY) {
         Image carImg = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/car.png"));
-        imageView = new ImageView(carImg);
+        setImage(carImg);
         int maxSize = TrafficBelt.BELT_HEIGHT - 2;
         double scale = ((double)maxSize) / (carImg.getHeight() > carImg.getWidth() ? carImg.getHeight() : carImg.getWidth());
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(carImg.getWidth() * scale);
-        imageView.setFitHeight(carImg.getHeight() * scale);
-        imageView.setX(startPosX);
-        imageView.setY(startPosY);
-        return imageView;
+        setPreserveRatio(true);
+        setFitWidth(carImg.getWidth() * scale);
+        setFitHeight(carImg.getHeight() * scale);
+        setX(startPosX);
+        setY(startPosY);
     }
 
     public void go(){
         synchronized (maxSpeed) {
             Point newPos = calculatePosition(acceleration);
-            imageView.setX(newPos.getX());
-            imageView.setY(newPos.getY());
+            setX(newPos.getX());
+            setY(newPos.getY());
         }
     }
 
     public void stop() {
         synchronized (maxSpeed) {
             Point newPos = calculatePosition(-acceleration * 5);
-            imageView.setX(newPos.getX());
-            imageView.setY(newPos.getY());
+            setX(newPos.getX());
+            setY(newPos.getY());
         }
     }
 
@@ -109,12 +108,8 @@ public class Car {
         this.endPos = new Point(position.x, position.y);
     }
 
-    public ImageView getImageView() {
-        return imageView;
-    }
-
     public Point getPosition() {
-        return new Point((int)imageView.getX(), (int)imageView.getY());
+        return new Point((int)getX(), (int)getY());
     }
 
     public long getAverageSpeed() {

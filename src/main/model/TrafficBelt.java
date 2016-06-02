@@ -66,7 +66,7 @@ public class TrafficBelt {
             return null;
         }
         containingCars.add(car);
-        return car.getImageView();
+        return car;
     }
 
     public void changeCarsSpeed(WeatherEnum weatherConditions) {
@@ -245,32 +245,32 @@ public class TrafficBelt {
         List<Car> carsToRemove = new ArrayList<>();
         if (beltDirection == DirectionEnum.DOWN) {
             for (Car car : containingCars) {
-                if (car.getImageView().getY() >= beltYEnd) {
-                    carsViewsToRemove.add(car.getImageView());
+                if (car.getY() >= beltYEnd) {
+                    carsViewsToRemove.add(car);
                     carsToRemove.add(car);
                     car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.UP) {
             for (Car car : containingCars) {
-                if (car.getImageView().getY() + car.getImageView().getFitHeight() <= 0) {
-                    carsViewsToRemove.add(car.getImageView());
+                if (car.getY() + car.getFitHeight() <= 0) {
+                    carsViewsToRemove.add(car);
                     carsToRemove.add(car);
                     car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.RIGHT) {
             for (Car car : containingCars) {
-                if (car.getImageView().getX() >= beltXEnd) {
-                    carsViewsToRemove.add(car.getImageView());
+                if (car.getX() >= beltXEnd) {
+                    carsViewsToRemove.add(car);
                     carsToRemove.add(car);
                     car.carRemoveLogic();
                 }
             }
         } else if (beltDirection == DirectionEnum.LEFT) {
             for (Car car : containingCars) {
-                if (car.getImageView().getX() + car.getImageView().getFitWidth() <= 0) {
-                    carsViewsToRemove.add(car.getImageView());
+                if (car.getX() + car.getFitWidth() <= 0) {
+                    carsViewsToRemove.add(car);
                     carsToRemove.add(car);
                     car.carRemoveLogic();
                 }
