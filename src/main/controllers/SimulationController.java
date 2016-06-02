@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import main.model.SpeedRadar;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
+import main.model.enums.AlgorithmType;
 import main.model.enums.DirectionEnum;
 import main.model.enums.WeatherEnum;
 import main.utils.ExcelUtils;
@@ -16,6 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SimulationController {
+    private final AlgorithmType algorithmType;
     private List<TrafficBelt> verticalBelts;
     private List<TrafficBelt> verticalBelts2;
     private List<TrafficBelt> horizontalBelts;
@@ -25,7 +27,8 @@ public class SimulationController {
     private WeatherEnum weatherConditions;
     private final boolean dynamicWeather;
 
-    public SimulationController(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
+    public SimulationController(WeatherEnum weatherConditions, AlgorithmType algorithmType, int verticalBeltsCount, int verticalBelts2Count,
+                                int horizontalBeltsCount,
                                 int carsLimit, int simulationTime, int width, int height) {
 
         this.dynamicWeather = weatherConditions == null;
@@ -49,6 +52,7 @@ public class SimulationController {
             belt.getCrossingAndLights().add(crossings.get(1));
         }
         this.simulationTime = simulationTime;
+        this.algorithmType = algorithmType;
 
     }
 
@@ -69,21 +73,23 @@ public class SimulationController {
                 }
             }
         }, 1000, taskPeriod);
-        Timer timer2 = new Timer(true);
-        timer2.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                for (TrafficLightsAndCrossing cross : crossings) {
-                    synchronized (interval) {
-                        if (interval[0] <= 1) {
-                            timer2.cancel();
-                            return;
+        if (algorithmType == AlgorithmType.FIXED_TIME) {
+            Timer timer2 = new Timer(true);
+            timer2.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    for (TrafficLightsAndCrossing cross : crossings) {
+                        synchronized (interval) {
+                            if (interval[0] <= 1) {
+                                timer2.cancel();
+                                return;
+                            }
                         }
+                        cross.changeLights();
                     }
-                    cross.changeLights();
                 }
-            }
-        }, 3000, 6000);
+            }, 3000, 6000);
+        }
         //change weather dynamically
         if (dynamicWeather) {
             Timer weatherTimer = new Timer(true);
@@ -109,12 +115,20 @@ public class SimulationController {
 
     private void simulationIteration(final TerrainController terrainController) {
         Platform.runLater(() -> {
+            boolean changeLightsSwitch = false;
             for (TrafficBelt belt : SimulationController.this.getAllBelts()) {
                 terrainController.removeCarsFromStage(belt.moveCars());
                 ImageView res = belt.addCar(weatherConditions);
                 if (res != null) {
                     terrainController.addCarOnStage(res);
                 }
+                if (belt.isAboveMaxTries() && algorithmType == AlgorithmType.CARS_COUNT) {
+                    changeLightsSwitch = true;
+                }
+            }
+            if (changeLightsSwitch) {
+                SimulationController.this.getAllBelts().forEach(TrafficBelt::resetCarsTriesCounter);
+                crossings.forEach(TrafficLightsAndCrossing::changeLights);
             }
         });
     }

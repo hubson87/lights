@@ -18,6 +18,7 @@ import main.model.SpeedLimitSign;
 import main.model.SpeedRadar;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
+import main.model.enums.AlgorithmType;
 import main.model.enums.WeatherEnum;
 
 import java.io.IOException;
@@ -65,11 +66,12 @@ public class TerrainController implements Initializable {
         }
     }
 
-    public void initControllerValues(WeatherEnum weatherConditions, int verticalBeltsCount, int verticalBelts2Count, int horizontalBeltsCount,
+    public void initControllerValues(WeatherEnum weatherConditions, AlgorithmType algorithmType, int verticalBeltsCount,
+                                     int verticalBelts2Count, int horizontalBeltsCount,
                                      int carsLimit, int simulationTime, int width, int height) {
         this.windowWidth = width;
         this.windowHeight = height;
-        simulationController = new SimulationController(weatherConditions, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
+        simulationController = new SimulationController(weatherConditions, algorithmType, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
             carsLimit, simulationTime, width, height);
 
         for (TrafficBelt belt : simulationController.getAllBelts()) {

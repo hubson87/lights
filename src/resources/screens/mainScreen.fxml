@@ -6,6 +6,9 @@
     <fx:define>
         <ToggleGroup fx:id="weatherGroup"/>
     </fx:define>
+    <fx:define>
+        <ToggleGroup fx:id="algorithmGroup"/>
+    </fx:define>
     <GridPane prefHeight="3" GridPane.rowIndex="0"/>
     <Label text="Traffic belts vertical 1" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
     <Slider fx:id="verticalBeltsCount" min="1" max="3" blockIncrement="1"  GridPane.columnIndex="1" GridPane.rowIndex="1"
@@ -30,12 +33,17 @@
         <RadioButton fx:id="foggyRB" toggleGroup="$weatherGroup" text="Foggy" GridPane.columnIndex="2" GridPane.rowIndex="0" prefWidth="80"/>
         <RadioButton fx:id="randWeatherRB" toggleGroup="$weatherGroup" text="Random" GridPane.columnIndex="3" GridPane.rowIndex="0" prefWidth="80"/>
     </GridPane>
-    <Label text="Simulation time (s)" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-    <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="6" editable="true">
+    <Label text="Algorithm:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
+        <RadioButton fx:id="fixedTimeRB" toggleGroup="$algorithmGroup" text="Fixed time" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="carsAlgRB" toggleGroup="$algorithmGroup" text="Waiting Cars" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="100"/>
+    </GridPane>
+    <Label text="Simulation time (s)" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="7" editable="true">
         <valueFactory>
             <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="120" initialValue="60"/>
         </valueFactory>
         <editable>true</editable>
     </Spinner>
-    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <Button fx:id="generateButton" text="Generate Terrain" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
 </GridPane>

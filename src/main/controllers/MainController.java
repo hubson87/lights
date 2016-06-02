@@ -12,6 +12,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.stage.Stage;
+import main.model.enums.AlgorithmType;
 import main.model.enums.WeatherEnum;
 import main.utils.NumberUtils;
 
@@ -44,6 +45,8 @@ public class MainController implements Initializable {
     private RadioButton glazeRB;
     @FXML
     private RadioButton foggyRB;
+    @FXML
+    private RadioButton fixedTimeRB;
 
     @Override
     public void initialize(URL location, final ResourceBundle resources) {
@@ -76,6 +79,7 @@ public class MainController implements Initializable {
                     TerrainController terrainController = loader.getController();
                     terrainController.initControllerValues(
                             getWeatherFromRadioButtons(),
+                            getAlgorithmFromRadioButtons(),
                             (int)verticalBeltsCount.getValue(),
                             (int)verticalBelts2Count.getValue(),
                             (int)horizontalBeltsCount.getValue(),
@@ -89,6 +93,10 @@ public class MainController implements Initializable {
                 }
             }
         });
+    }
+
+    private AlgorithmType getAlgorithmFromRadioButtons() {
+        return fixedTimeRB.isSelected() ? AlgorithmType.FIXED_TIME : AlgorithmType.CARS_COUNT;
     }
 
     private WeatherEnum getWeatherFromRadioButtons() {

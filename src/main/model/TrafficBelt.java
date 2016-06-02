@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class TrafficBelt {
+    private static final Integer MAX_TRIES_FOR_LIGHTS_SWITCH_ALGORITHM = 200;
     private final Random random = new Random();
     public static final int BELT_HEIGHT = 20;
     private static Double STOPPING_DIST_FACT = 1.5;
@@ -27,10 +28,12 @@ public class TrafficBelt {
     private List<SpeedResult> speedResults;
     private int carsThatLeftTheStage;
     private final Integer speedControlXStart, speedControlXEnd;
+    private Integer addCarTriesFailure;
 
     public TrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
                        Integer speedControlXStart, Integer speedControlXEnd) {
         carsThatLeftTheStage = 0;
+        addCarTriesFailure = 0;
         this.beltNumber = beltNumber;
         this.carsLimit = carsLimit;
         speedResults = new ArrayList<>();
@@ -59,8 +62,9 @@ public class TrafficBelt {
         return crossingAndLights;
     }
 
-    public ImageView addCar(WeatherEnum weatherConditions) {
+    public synchronized ImageView addCar(WeatherEnum weatherConditions) {
         if (containingCars.size() >= carsLimit) {
+            addCarTriesFailure++;
             return null;
         }
         Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart, speedControlXStart, speedControlXEnd);
@@ -107,6 +111,9 @@ public class TrafficBelt {
         }
         if (hasGreenLight(nextCrossing) && canGoThroughTheCrossing(car, nextCrossing)) {
             return true;
+        }
+        if (!hasGreenLight(nextCrossing)) {
+            addCarTriesFailure++;
         }
         //has red light but still has some distance to the traffic lights
         if (hasDistanceToCrossing(car, nextCrossing)) {
@@ -309,5 +316,13 @@ public class TrafficBelt {
 
     public int getBeltNumber() {
         return beltNumber;
+    }
+
+    public synchronized boolean isAboveMaxTries() {
+        return this.addCarTriesFailure > MAX_TRIES_FOR_LIGHTS_SWITCH_ALGORITHM;
+    }
+
+    public synchronized void resetCarsTriesCounter() {
+        this.addCarTriesFailure = 0;
     }
 }
