@@ -2,11 +2,14 @@ package main.controllers;
 
 import javafx.application.Platform;
 import javafx.scene.image.ImageView;
+import main.model.belts.DownTrafficBelt;
+import main.model.belts.LeftTrafficBelt;
+import main.model.belts.RightTrafficBelt;
 import main.model.SpeedRadar;
-import main.model.TrafficBelt;
+import main.model.belts.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
+import main.model.belts.UpTrafficBelt;
 import main.model.enums.AlgorithmType;
-import main.model.enums.DirectionEnum;
 import main.model.enums.WeatherEnum;
 import main.utils.ExcelUtils;
 
@@ -156,7 +159,7 @@ public class SimulationController {
         int beltNr = 1;
         for (int i = 0; i < verticalBeltsCount; i++) {
             TrafficBelt belt =
-                new TrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.DOWN, null, null);
+                new DownTrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
@@ -164,7 +167,7 @@ public class SimulationController {
         beltNr = 1;
         for (int i = 0; i < verticalBeltsCount; i++) {
             TrafficBelt belt =
-                new TrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.UP, null, null);
+                new UpTrafficBelt(beltNr++, carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
@@ -186,16 +189,16 @@ public class SimulationController {
         speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlEnd - 10, beltsYStart - 40)));
         int beltNr = 1;
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
-                DirectionEnum.LEFT, leftBeltSpeedControlStart, leftBeltSpeedControlEnd);
+            TrafficBelt belt = new LeftTrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
+                leftBeltSpeedControlStart, leftBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsYStart += 6;
         beltNr = 1;
         for (int i = 0; i < horizontalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
-                DirectionEnum.RIGHT, rightBeltSpeedControlStart, rightBeltSpeedControlEnd);
+            TrafficBelt belt = new RightTrafficBelt(beltNr++, carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
+                rightBeltSpeedControlStart, rightBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }

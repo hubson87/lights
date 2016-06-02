@@ -2,8 +2,6 @@ package main.controllers;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -15,8 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import main.model.SpeedLimitSign;
-import main.model.SpeedRadar;
-import main.model.TrafficBelt;
+import main.model.belts.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.AlgorithmType;
 import main.model.enums.WeatherEnum;

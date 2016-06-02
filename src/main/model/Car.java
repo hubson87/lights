@@ -2,6 +2,7 @@ package main.model;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import main.model.belts.TrafficBelt;
 import main.model.enums.DirectionEnum;
 
 import java.awt.*;
