@@ -31,7 +31,8 @@ public class RightTrafficBelt extends TrafficBelt {
                 firstCar = c;
             }
         }
-        return firstCar;
+        Car foundCloneFixed = firstCar != null ? new Car(firstCar.getX() + BELT_HEIGHT, firstCar.getY()) : null;
+        return foundCloneFixed;
     }
 
     @Override

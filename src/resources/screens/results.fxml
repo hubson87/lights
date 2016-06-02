@@ -1,7 +1,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
 <GridPane fx:controller="main.controllers.ResultsController" id="terrainMainPanel" fx:id="terrainMainPanel"
           xmlns:fx="http://javafx.com/fxml" >
     <Label fx:id="resLabel" text="Simulation finished." GridPane.rowIndex="0"/>
     <Label fx:id="summaryLabel" GridPane.rowIndex="1"/>
+    <Button fx:id="goBackBtn" text="Go Back" GridPane.rowIndex="3"/>
 </GridPane>

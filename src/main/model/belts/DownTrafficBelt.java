@@ -29,7 +29,8 @@ public class DownTrafficBelt extends TrafficBelt {
                 firstCar = c;
             }
         }
-        return firstCar;
+        Car foundCloneFixed = firstCar != null ? new Car(firstCar.getX(), firstCar.getY() - BELT_HEIGHT) : null;
+        return foundCloneFixed;
     }
 
     @Override

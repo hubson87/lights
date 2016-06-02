@@ -56,6 +56,13 @@ public class Car extends ImageView {
         this.speedsForWeather = new HashMap<>();
     }
 
+    public Car(double x, double y) {
+        this.setX(x);
+        this.setY(y);
+        beginPos = null;
+        carEnterOnStageTime = null;
+    }
+
     private void loadImgAndResize(int startPosX, int startPosY) {
         Image carImg = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/car.png"));
         setImage(carImg);

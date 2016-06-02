@@ -138,9 +138,7 @@ public abstract class TrafficBelt {
         return true;
     }
 
-    protected Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        return null;
-    }
+    protected abstract Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing);
 
     private boolean hasAnyPossibleCollision(Car car) {
         for (Car c : containingCars) {
