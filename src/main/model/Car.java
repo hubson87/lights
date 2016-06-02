@@ -4,10 +4,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import main.model.belts.TrafficBelt;
 import main.model.enums.DirectionEnum;
+import main.model.enums.WeatherEnum;
 
-import java.awt.*;
+import java.awt.Point;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Car extends ImageView {
@@ -23,8 +28,12 @@ public class Car extends ImageView {
     private LocalDateTime radarSpeedMeasureStarted;
     private LocalDateTime radarSpeedMeasureEnd;
     private Integer radarSpeedStartX, radarSpeedEndX;
+    private WeatherEnum currentWeather;
+    private LocalDateTime lastWeatherChangeTime;
+    private Point lastWeatherPosition;
+    private Map<WeatherEnum, List<Long>> speedsForWeather;
 
-    public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos, Integer radarSpeedStartX, Integer radarSpeedEndX) {
+    public Car(int maxSpeed, DirectionEnum direction, int beltXPos, int beltYPos, Integer radarSpeedStartX, Integer radarSpeedEndX, WeatherEnum weatherEnum) {
         super();
         if (direction == null) {
             throw new IllegalArgumentException("Direction must be defined");
@@ -40,6 +49,10 @@ public class Car extends ImageView {
         this.acceleration = (double) maxSpeed / 10.0;
         this.radarSpeedStartX = radarSpeedStartX;
         this.radarSpeedEndX = radarSpeedEndX;
+        this.currentWeather = weatherEnum;
+        this.lastWeatherChangeTime = LocalDateTime.now();
+        this.lastWeatherPosition = new Point(beltXPos, beltYPos);
+        this.speedsForWeather = new HashMap<>();
     }
 
     private void loadImgAndResize(int startPosX, int startPosY) {
@@ -103,10 +116,26 @@ public class Car extends ImageView {
         }
     }
 
-    public void changeMaxSpeed(int newMaxSpeed) {
+    public void changeMaxSpeed(int newMaxSpeed, WeatherEnum newWeather) {
         synchronized (maxSpeed) {
             maxSpeed = newMaxSpeed;
+            updateSpeedForTheWeather(newWeather);
         }
+    }
+
+    private synchronized void updateSpeedForTheWeather(WeatherEnum newWeather) {
+        //update speed during the weather
+        int startCoordinate = xDirection == 0 ? lastWeatherPosition.y : lastWeatherPosition.x;
+        int endCoordinate = xDirection == 0 ? position.y : position.x;
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        long speed = calculateSpeedStats(startCoordinate, endCoordinate, lastWeatherChangeTime, nowDateTime);
+        if (!speedsForWeather.containsKey(currentWeather)) {
+            speedsForWeather.put(currentWeather, new ArrayList<>());
+        }
+        speedsForWeather.get(currentWeather).add(speed);
+        lastWeatherChangeTime = nowDateTime;
+        lastWeatherPosition = new Point(position.x, position.y);
+        currentWeather = newWeather;
     }
 
     private int calculateSpeed(int direction, double accelerationValue, int currentSpeed) {
@@ -128,6 +157,7 @@ public class Car extends ImageView {
     public void carRemoveLogic() {
         this.carLeftTheStageTime = LocalDateTime.now();
         this.endPos = new Point(position.x, position.y);
+        updateSpeedForTheWeather(currentWeather);
     }
 
     public Point getPosition() {

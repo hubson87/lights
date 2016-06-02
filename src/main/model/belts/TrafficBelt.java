@@ -59,7 +59,8 @@ public abstract class TrafficBelt {
             addCarTriesFailure++;
             return null;
         }
-        Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart, speedControlXStart, speedControlXEnd);
+        Car car = new Car(randomMaxSpeedForCar(weatherConditions), beltDirection, beltXStart, beltYStart, speedControlXStart, speedControlXEnd,
+            weatherConditions);
         if (hasAnyPossibleCollision(car)) {
             return null;
         }
@@ -69,7 +70,7 @@ public abstract class TrafficBelt {
 
     public void changeCarsSpeed(WeatherEnum weatherConditions) {
         for (Car car : containingCars) {
-            car.changeMaxSpeed(randomMaxSpeedForCar(weatherConditions));
+            car.changeMaxSpeed(randomMaxSpeedForCar(weatherConditions), weatherConditions);
         }
     }
 

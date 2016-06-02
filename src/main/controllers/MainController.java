@@ -51,6 +51,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, final ResourceBundle resources) {
         sunnyRB.setSelected(true);
+        fixedTimeRB.setSelected(true);
         timeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (NumberUtils.isInteger(newValue)) {
