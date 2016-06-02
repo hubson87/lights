@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import main.model.SpeedRadar;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.WeatherEnum;
@@ -68,7 +69,7 @@ public class TerrainController implements Initializable {
         this.windowWidth = width;
         this.windowHeight = height;
         simulationController = new SimulationController(weatherConditions, verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount,
-                carsLimit, simulationTime, width, height);
+            carsLimit, simulationTime, width, height);
 
         for (TrafficBelt belt : simulationController.getAllBelts()) {
             terrainMainPanel.getChildren().add(belt.getBeltGraphics());
@@ -77,13 +78,19 @@ public class TerrainController implements Initializable {
         for (TrafficLightsAndCrossing crossing : simulationController.getCrossings()) {
             terrainMainPanel.getChildren().add(crossing.getCrossingGraphics());
         }
+
+        if (simulationController.getSpeedRadars() != null && !simulationController.getSpeedRadars().isEmpty()) {
+            terrainMainPanel.getChildren().addAll(simulationController.getSpeedRadars());
+        }
+        setWeatherSign(simulationController.getWeatherConditions());
     }
 
     public void setWeatherSign(WeatherEnum weatherConditions) {
         if (currentWeather != null && terrainMainPanel.getChildren().contains(currentWeather)) {
             terrainMainPanel.getChildren().remove(currentWeather);
         }
-        Image img = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/weather/" + weatherConditions.getResourceName()));
+        Image img =
+            new Image(getClass().getClassLoader().getResourceAsStream("resources/images/weather/" + weatherConditions.getResourceName()));
         currentWeather = new ImageView(img);
         currentWeather.setPreserveRatio(true);
         currentWeather.setFitWidth(weatherOriginalImageWidth / weatherImageScale);
@@ -104,7 +111,7 @@ public class TerrainController implements Initializable {
             stage.setResizable(false);
             ResultsController resultsController = loader.getController();
             resultsController.initController(resFilename);
-            ((Stage)terrainMainPanel.getScene().getWindow()).close();
+            ((Stage) terrainMainPanel.getScene().getWindow()).close();
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

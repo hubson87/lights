@@ -2,6 +2,7 @@ package main.controllers;
 
 import javafx.application.Platform;
 import javafx.scene.image.ImageView;
+import main.model.SpeedRadar;
 import main.model.TrafficBelt;
 import main.model.TrafficLightsAndCrossing;
 import main.model.enums.DirectionEnum;
@@ -9,6 +10,7 @@ import main.model.enums.WeatherEnum;
 import main.utils.ExcelUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +20,7 @@ public class SimulationController {
     private List<TrafficBelt> verticalBelts2;
     private List<TrafficBelt> horizontalBelts;
     private List<TrafficLightsAndCrossing> crossings;
+    private List<SpeedRadar> speedRadars;
     private int simulationTime;
     private WeatherEnum weatherConditions;
     private final boolean dynamicWeather;
@@ -30,7 +33,8 @@ public class SimulationController {
         verticalBelts = initVerticalBelts(verticalBeltsCount, height, width, carsLimit, width / 4);
         verticalBelts2 = initVerticalBelts(verticalBelts2Count, height, width, carsLimit, 3 * width / 4);
         horizontalBelts = initHorizontalBelts(horizontalBeltsCount, height, width, carsLimit, verticalBeltsCount, verticalBelts2Count);
-        crossings = initCrossings(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount, height, width);    //first and the second crossing
+        crossings =
+            initCrossings(verticalBeltsCount, verticalBelts2Count, horizontalBeltsCount, height, width);    //first and the second crossing
         for (TrafficBelt belt : horizontalBelts) {
             belt.setStoppingDistFact(this.weatherConditions.getStoppingDistanceFactor());
             belt.getCrossingAndLights().add(crossings.get(0));
@@ -50,9 +54,8 @@ public class SimulationController {
 
     public void startSimulation(final TerrainController terrainController) {
         final int taskPeriod = 30;
-        final double[] interval = {(double) simulationTime * 1000.0 / (double) taskPeriod};
+        final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
         Timer timer = new Timer(true);
-        Platform.runLater(() -> terrainController.setWeatherSign(weatherConditions));
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -118,7 +121,7 @@ public class SimulationController {
 
     private List<TrafficLightsAndCrossing> initCrossings(int verticalBeltsCount, int verticalBelts2Count,
                                                          int horizontalBeltsCount, int windowHeight, int windowWidth) {
-        List<TrafficLightsAndCrossing> res = new ArrayList<TrafficLightsAndCrossing>();
+        List<TrafficLightsAndCrossing> res = new ArrayList<>();
         int yFrom = windowHeight / 2 - horizontalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;
         int yTo = windowHeight / 2 + horizontalBeltsCount * TrafficBelt.BELT_HEIGHT + 3;
 
@@ -137,41 +140,51 @@ public class SimulationController {
         List<TrafficBelt> res = new ArrayList<TrafficBelt>();
         int beltsXStart = offset - verticalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;   //we want to separate them
         for (int i = 0; i < verticalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.DOWN, null, null);
+            TrafficBelt belt =
+                new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.DOWN, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsXStart += 6;
         for (int i = 0; i < verticalBeltsCount; i++) {
-            TrafficBelt belt = new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.UP, null, null);
+            TrafficBelt belt =
+                new TrafficBelt(carsLimit, beltsXStart, 0, TrafficBelt.BELT_HEIGHT, windowHeight + 20, DirectionEnum.UP, null, null);
             res.add(belt);
             beltsXStart += TrafficBelt.BELT_HEIGHT;
         }
         return res;
     }
 
-    public List<TrafficBelt> initHorizontalBelts(int horizontalBeltsCount, int windowHeight, int windowWidth, int carsLimit, int verticalBeltsCount, int verticalBelts2Count) {
-        List<TrafficBelt> res = new ArrayList<TrafficBelt>();
-        int rightBeltSpeedControlStart = (int)((double)windowWidth / 4.0 +
-                ((double)verticalBeltsCount + 1.0) * (double)TrafficBelt.BELT_HEIGHT + (double)verticalBeltsCount * 3.0);
-        int rightBeltSpeedControlEnd = (int)((double)rightBeltSpeedControlStart + (double)windowWidth / 8.0);
-        int leftBeltSpeedControlStart = (int)(3.0 * (double)windowWidth / 4.0 -
-                ((double)verticalBeltsCount + 1.0) * (double)TrafficBelt.BELT_HEIGHT - (double)verticalBeltsCount * 3.0);
-        int leftBeltSpeedControlEnd = (int)((double)rightBeltSpeedControlStart - (double)windowWidth / 8.0);
+    public List<TrafficBelt> initHorizontalBelts(int horizontalBeltsCount, int windowHeight, int windowWidth, int carsLimit,
+                                                 int verticalBeltsCount, int verticalBelts2Count) {
+        List<TrafficBelt> res = new ArrayList<>();
+        speedRadars = new ArrayList<>();
+        int leftBeltSpeedControlStart = (int)(windowWidth / 4.0 + verticalBeltsCount * (TrafficBelt.BELT_HEIGHT + 3.0)) + 10;
+        int leftBeltSpeedControlEnd = (int)(leftBeltSpeedControlStart + windowWidth / 6.0);
+
+        int rightBeltSpeedControlStart = (int) (3.0 * windowWidth / 4.0 - verticalBelts2Count * (TrafficBelt.BELT_HEIGHT + 3.0)) - 10;
+        int rightBeltSpeedControlEnd = (int) (rightBeltSpeedControlStart - windowWidth / 6.0);
         int beltsYStart = windowHeight / 2 - horizontalBeltsCount * TrafficBelt.BELT_HEIGHT - 3;   //we want to separate them
+
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlStart + 10, beltsYStart - 40)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(leftBeltSpeedControlEnd + 10, beltsYStart - 40)));
+
         for (int i = 0; i < horizontalBeltsCount; i++) {
             TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
-                    DirectionEnum.LEFT, leftBeltSpeedControlStart, leftBeltSpeedControlEnd);
+                DirectionEnum.LEFT, leftBeltSpeedControlStart, leftBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
         beltsYStart += 6;
         for (int i = 0; i < horizontalBeltsCount; i++) {
             TrafficBelt belt = new TrafficBelt(carsLimit, 0, beltsYStart, windowWidth + 20, TrafficBelt.BELT_HEIGHT,
-                    DirectionEnum.RIGHT, rightBeltSpeedControlStart, rightBeltSpeedControlEnd);
+                DirectionEnum.RIGHT, rightBeltSpeedControlStart, rightBeltSpeedControlEnd);
             res.add(belt);
             beltsYStart += TrafficBelt.BELT_HEIGHT;
         }
+
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlStart - 10, beltsYStart + 10)));
+        speedRadars.addAll(Arrays.asList(new SpeedRadar(rightBeltSpeedControlEnd - 10, beltsYStart + 10)));
         return res;
     }
 
@@ -185,5 +198,13 @@ public class SimulationController {
 
     public List<TrafficLightsAndCrossing> getCrossings() {
         return crossings;
+    }
+
+    public WeatherEnum getWeatherConditions() {
+        return weatherConditions;
+    }
+
+    public List<SpeedRadar> getSpeedRadars() {
+        return speedRadars;
     }
 }

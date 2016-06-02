@@ -25,10 +25,10 @@ public class TrafficBelt {
     private List<TrafficLightsAndCrossing> crossingAndLights;
     private List<SpeedResult> speedResults;
     private int carsThatLeftTheStage;
-    private final Integer speedControlStart, speedControlEnd;
+    private final Integer speedControlXStart, speedControlXEnd;
 
     public TrafficBelt(int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
-                       Integer speedControlStart, Integer speedControlEnd) {
+                       Integer speedControlXStart, Integer speedControlXEnd) {
         carsThatLeftTheStage = 0;
         this.carsLimit = carsLimit;
         speedResults = new ArrayList<>();
@@ -46,8 +46,8 @@ public class TrafficBelt {
                 (beltDirection == DirectionEnum.RIGHT ? xPos + width : xPos);
         beltYEnd = beltDirection.isHorizontal() ? yPos + 3 :
                 (beltDirection == DirectionEnum.DOWN ? yPos + height : yPos);
-        this.speedControlStart = speedControlStart;
-        this.speedControlEnd = speedControlEnd;
+        this.speedControlXStart = speedControlXStart;
+        this.speedControlXEnd = speedControlXEnd;
     }
 
     public List<TrafficLightsAndCrossing> getCrossingAndLights() {
