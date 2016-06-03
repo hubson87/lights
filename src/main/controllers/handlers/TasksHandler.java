@@ -1,4 +1,4 @@
-package main.controllers;
+package main.controllers.handlers;
 
 import javafx.concurrent.Task;
 

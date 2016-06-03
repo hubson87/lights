@@ -5,7 +5,7 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import main.controllers.TasksHandler;
+import main.controllers.handlers.TasksHandler;
 
 /**
  * Created by Krzysztof Baran
