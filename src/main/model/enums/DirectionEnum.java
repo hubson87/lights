@@ -1,10 +1,9 @@
 package main.model.enums;
 
-//car going left, right up or down
+/**
+ * Created by Krzysztof Baran
+ * Enumarator kierunku poruszania się pojazdu. Lewo, Prawo, Góra, Dół
+ */
 public enum DirectionEnum {
     LEFT, RIGHT, UP, DOWN;
-
-    public boolean isHorizontal() {
-        return this == LEFT || this == RIGHT;
-    }
 }

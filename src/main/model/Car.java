@@ -8,13 +8,11 @@ import main.model.enums.WeatherEnum;
 import main.utils.DateUtils;
 
 import java.awt.Point;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class Car extends ImageView {
     private Integer maxSpeed;
