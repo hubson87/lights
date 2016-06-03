@@ -97,6 +97,13 @@ public abstract class TrafficBelt {
             } else {
                 car.stop();
             }
+            for (TrafficLightsAndCrossing crossing : crossingAndLights) {
+                if (crossing.isCarOnTheCrossing(car.getPosition(), BELT_HEIGHT)) {
+                    crossing.addCarIfNotExists(car);
+                } else if (!crossing.isCarOnTheCrossing(car.getPosition(), BELT_HEIGHT)) {
+                    crossing.removeCar(car);
+                }
+            }
         }
         return cleanup();
     }
@@ -104,41 +111,61 @@ public abstract class TrafficBelt {
     private boolean canCarGo(Car car) {
         Point carPos = car.getPosition();
         TrafficLightsAndCrossing nextCrossing = getNextCrossingAndLights(carPos);
+        TrafficLightsAndCrossing currentCrossing = getCurrentCrossingIfCarOnCrossing(carPos);
         if (hasAnyPossibleCollision(car)) {
             return false;
         }
-        if (hasGreenLight(nextCrossing) && canGoThroughTheCrossing(car, nextCrossing)) {
+        if (hasGreenLight(nextCrossing) && !hasCollisionOnTheCurrentCrossing(nextCrossing, car)) {
             return true;
         }
         if (!hasGreenLight(nextCrossing)) {
             addCarTriesFailure++;
         }
         //has red light but still has some distance to the traffic lights
-        if (hasDistanceToCrossing(car, nextCrossing)) {
+        if (nextCrossing == null || hasDistanceToCrossing(car, nextCrossing)) {
             return true;
         }
         return false;
     }
 
-    private boolean canGoThroughTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        if (nextCrossing == null || hasDistanceToCrossing(car, nextCrossing)) {
-            return true;
+    private TrafficLightsAndCrossing getCurrentCrossingIfCarOnCrossing(Point carPos) {
+        for (TrafficLightsAndCrossing crossing : crossingAndLights) {
+            if (crossing.isCarOnTheCrossing(carPos, BELT_HEIGHT)) {
+                return crossing;
+            }
         }
-        return hasPlaceAfterTheCrossing(car, nextCrossing);
+        return null;
     }
 
-    private boolean hasPlaceAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        Car afterCrossingCar = findFirstCarAfterTheCrossing(car, nextCrossing);
-        if (afterCrossingCar == null) {
-            return true;
-        }
-        if (collisionBetweenTwoCars(car, afterCrossingCar)) {
+    private boolean hasCollisionOnTheCurrentCrossing(TrafficLightsAndCrossing crossing, Car car) {
+        if (crossing == null) {
             return false;
         }
-        return true;
+        if (hasDistanceToCrossing(car, crossing)) {
+            return false;
+        }
+        Car tempCar = new Car(car);
+        for (int i = 0; i <= crossing.getVBeltsCount() + 1; i++) {
+            tempCar.go();
+            for (Car c : crossing.getContainingCars()) {
+                if (c == car) {
+                    continue;
+                }
+                if (checkFullCollisionBetweenTwoCars(c, tempCar)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    protected abstract Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing);
+    protected boolean checkFullCollisionBetweenTwoCars(Car c, Car tempCar) {
+        boolean yCollision = ((c.getY() >= tempCar.getY() && c.getY() <= tempCar.getY() + BELT_HEIGHT) ||
+                (tempCar.getY() >= c.getY() && tempCar.getY() <= c.getY() + BELT_HEIGHT));
+        boolean xCollision = ((c.getX() >= tempCar.getX() && c.getX() <= tempCar.getX() + BELT_HEIGHT) ||
+                (tempCar.getX() >= c.getX() && tempCar.getX() <= c.getX() + BELT_HEIGHT));
+        return xCollision && yCollision;
+    }
 
     private boolean hasAnyPossibleCollision(Car car) {
         for (Car c : containingCars) {

@@ -19,21 +19,6 @@ public class DownTrafficBelt extends TrafficBelt {
     }
 
     @Override
-    protected Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        Car firstCar = null;
-        for (Car c : containingCars) {
-            if (c == car) {
-                continue;
-            }
-            if (nextCrossing.getY2() < c.getPosition().y && (firstCar == null || c.getPosition().y < firstCar.getPosition().y)) {
-                firstCar = c;
-            }
-        }
-        Car foundCloneFixed = firstCar != null ? new Car(firstCar.getX(), firstCar.getY() - BELT_HEIGHT) : null;
-        return foundCloneFixed;
-    }
-
-    @Override
     protected boolean collisionBetweenTwoCars(Car car, Car c) {
         return car.getPosition().y + BELT_HEIGHT >= c.getPosition().y - BELT_HEIGHT * getStoppingDistFact() &&
             car.getPosition().y < c.getPosition().y;

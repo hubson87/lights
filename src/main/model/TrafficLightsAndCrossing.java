@@ -7,6 +7,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import main.controllers.handlers.TasksHandler;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Krzysztof Baran
  * Klasa reprezentująca obiekt skrzyżowania oraz umieszczonych na nim świateł
@@ -48,6 +52,14 @@ public class TrafficLightsAndCrossing {
      * Flaga mówiąca o tym, czy aktualnie pionowe światła ustawione są jako zielone i pionowe pasy są przejezdne
      */
     private boolean verticalGreen;
+    /**
+     * Lista samochodów aktualnie znajdujących się na skrzyżowaniu
+     */
+    private List<Car> containingCars;
+    /**
+     * Ilość pasów na skrzyżowaniu w pionie
+     */
+    private int vBeltsCount;
 
     /**
      * Konstruktor ustawiający położenie skrzyżowania oraz pobierający wszystkie potrzebne pliki graficzne.
@@ -57,12 +69,14 @@ public class TrafficLightsAndCrossing {
      * @param x2 Wartość osi X dla końcowego brzegu skrzyżowania
      * @param y1 Wartość osi X dla początkowego brzegu skrzyżowania
      * @param y2 Wartość osi Y dla końcowego brzegu skrzyżowania
+     * @param vBeltsCount Ilość pasów pionowych na skrzyżowaniu
      */
-    public TrafficLightsAndCrossing(int x1, int x2, int y1, int y2) {
+    public TrafficLightsAndCrossing(int x1, int x2, int y1, int y2, int vBeltsCount) {
         this.x1 = x1;
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
+        containingCars = new ArrayList<>();
         //inicjalizowanie panelu skrzyżowania
         this.crossingCoordinates = initPane(x1, x2, y1, y2);
         //pobranie wszystkich resourców potrzebnych do jego wyświetlenia
@@ -71,6 +85,7 @@ public class TrafficLightsAndCrossing {
         this.greenLight = new Image(getClass().getClassLoader().getResourceAsStream("resources/images/green.png"));
         //ustawienie pionowych świateł jako czerwonych, a poziomych jako zielonych
         setLights(redLight, false, greenLight, true);
+        this.vBeltsCount = vBeltsCount;
     }
 
     /**
@@ -242,5 +257,60 @@ public class TrafficLightsAndCrossing {
      */
     public int getY2() {
         return y2;
+    }
+
+    /**
+     * Metoda sprawdzająca, czy dany samochód jest na liście samochodów na skrzyżowaniu
+     * @param car Analizowany samochód
+     * @return Jeśli samochód jest na liście => true, wpp. false
+     */
+    private boolean containsCar(Car car) {
+        return containingCars.contains(car);
+    }
+
+    /**
+     * Metoda sprawdzająca, czy dany samochód znajduje się na skrzyżowaniu
+     */
+    public boolean isCarOnTheCrossing(Point carPos, int beltHeight) {
+        return ((carPos.x >= getX1() && carPos.x <= getX2()) ||
+                (carPos.x + beltHeight >= getX1() && carPos.x + beltHeight <= getX2()))
+                && ((carPos.y >= getY1() && carPos.y <= getY2()) ||
+                (carPos.y + beltHeight  >= getY1() && carPos.y + beltHeight <= getY2()));
+    }
+
+    /**
+     * Metoda dodająca samochód do skrzyżowania jeśli jeszcze go nie ma
+     * @param car Analizowany samochód
+     */
+    public void addCarIfNotExists(Car car) {
+        if (!containsCar(car)) {
+            containingCars.add(car);
+        }
+    }
+
+    /**
+     * Metoda usuwająca samochód ze skrzyżowania jeśli istnieje na liście
+     * @param car Analizowany samochód
+     */
+    public void removeCar(Car car) {
+        if (containsCar(car)) {
+            containingCars.remove(car);
+        }
+    }
+
+    /**
+     * Getter dla listy samochodów na skrzyżowaniu
+     * @return Samochody znajdujące się na skrzyżowaniu
+     */
+    public List<Car> getContainingCars() {
+        return containingCars;
+    }
+
+    /**
+     * Getter dla ilości pasów pionowych na światłach
+     * @return Ilość pasów pionowych na światłach
+     */
+    public int getVBeltsCount() {
+        return vBeltsCount;
     }
 }

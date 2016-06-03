@@ -9,10 +9,8 @@ import main.utils.DateUtils;
 
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Krzysztof Baran
@@ -20,6 +18,10 @@ import java.util.Map;
  * Dziedziczy po ImageView przez co sam w sobie jest obiektem sceny zawierającym obraz wewnątrz
  */
 public class Car extends ImageView {
+    /**
+     * Generator liczb losowych aby niezależnie zmieniać przyspieszenie samochodów z elementem losowości
+     */
+    private final static Random RANDOM = new Random();
     /**
      * Pozycja początkowa pojazdu na scenie.
      * Służy również do obliczenia całkowitej średniej prędkości poruszania się pojazdu
@@ -124,7 +126,7 @@ public class Car extends ImageView {
         //Ustawienie prędkości początkowej pojazdu wjeżdżającego na scenę
         this.speed = maxSpeed / 4;
         //Ustawienie przyspieszenia pojazdu w zależności od osiąganej prędkości maksymalnej
-        this.acceleration = (double) maxSpeed / 10.0;
+        this.acceleration = (double) (maxSpeed + RANDOM.nextInt(30)) / 10.0;
         //Ustawienie początku i końca pomiaru odcinkowego prędkości na pasie
         this.radarSpeedStartX = radarSpeedStartX;
         this.radarSpeedEndX = radarSpeedEndX;
@@ -148,6 +150,23 @@ public class Car extends ImageView {
         this.setY(y);
         beginPos = null;
         carEnterOnStageTime = null;
+    }
+
+    /**
+     * Inicjalizacji tymczasowego obiektu samochodu do przeliczeń kolizji
+     * @param c Aktualnie analizowany samochód
+     */
+    public Car(Car c) {
+        this.setX(c.getX());
+        this.setY(c.getY());
+        this.position = new Point(c.position.x, c.position.y);
+        this.xDirection = c.xDirection;
+        this.yDirection = c.yDirection;
+        beginPos = null;
+        carEnterOnStageTime = null;
+        this.maxSpeed = c.maxSpeed;
+        this.speed = c.speed;
+        this.acceleration = c.acceleration;
     }
 
     /**
@@ -223,7 +242,7 @@ public class Car extends ImageView {
      * @param position Aktualna pozycja samochodu
      */
     private void checkAndMarkRadars(Point position) {
-        if (xDirection == 0) {
+        if (xDirection == 0 || radarSpeedStartX == null) {
             return;
         }
         //Jeśli samochód porusza się w prawo i nie zakończył się jeszcze pomiar prędkości
@@ -399,7 +418,7 @@ public class Car extends ImageView {
 
     /**
      * Getter dla aktualnie panującej pogody
-     * @return Aktualnie panująca pogoda
+     * @return Aktualnie ma
      */
     public WeatherEnum getCurrentWeather() {
         return currentWeather;

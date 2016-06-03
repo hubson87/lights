@@ -21,21 +21,6 @@ public class LeftTrafficBelt extends TrafficBelt {
     }
 
     @Override
-    protected Car findFirstCarAfterTheCrossing(Car car, TrafficLightsAndCrossing nextCrossing) {
-        Car firstCar = null;
-        for (Car c : containingCars) {
-            if (c == car) {
-                continue;
-            }
-            if (nextCrossing.getX1() > c.getPosition().x && (firstCar == null || c.getPosition().x > firstCar.getPosition().x)) {
-                firstCar = c;
-            }
-        }
-        Car foundCloneFixed = firstCar != null ? new Car(firstCar.getX() - BELT_HEIGHT, firstCar.getY()) : null;
-        return foundCloneFixed;
-    }
-
-    @Override
     protected boolean collisionBetweenTwoCars(Car car, Car c) {
         return car.getPosition().x - BELT_HEIGHT <= c.getPosition().x + BELT_HEIGHT * getStoppingDistFact() &&
             car.getPosition().x > c.getPosition().x;
