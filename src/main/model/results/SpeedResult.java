@@ -6,6 +6,7 @@ import java.util.Map;
 import main.model.enums.WeatherEnum;
 
 /**
+ * Created by Krzysztof Baran
  * Klasa reprezentująca wyniki pomiarów prędkości w aplikacji
  */
 public class SpeedResult {

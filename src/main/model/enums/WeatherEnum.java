@@ -10,7 +10,7 @@ public enum  WeatherEnum {
     /**
      * Współczynniki pogody słonecznej
      */
-    SUNNY (20, 30, 40, 60, 4.0, 6, "sunny.png"),
+    SUNNY (20, 30, 40, 60, 3.0, 6, "sunny.png"),
     /**
      * Współczynniki pogody deszczowej
      */
