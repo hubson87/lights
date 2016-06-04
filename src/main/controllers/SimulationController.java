@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class SimulationController {
     private final AlgorithmType algorithmType;
     private List<TrafficBelt> verticalBelts;
