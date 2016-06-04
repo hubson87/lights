@@ -164,7 +164,7 @@ public class TrafficLightsAndCrossing {
      * Analogicznie jeśli ustawione aktualnie jest światło zielone w pionie.
      */
     public void changeLights() {
-        TasksHandler.runTask(new Task() {
+        new Thread(new Task() {
             @Override
             protected Object call() throws Exception {
                 Platform.runLater(() -> {
@@ -178,7 +178,7 @@ public class TrafficLightsAndCrossing {
                 });
                 return null;
             }
-        });
+        }).start();
     }
 
     /**
@@ -189,7 +189,7 @@ public class TrafficLightsAndCrossing {
      * @param newVerticalGreenValue Nowa wartość dla światła zielonego w pionie. Jeśli false, to ustawiane jest światło w poziomie jako zielone
      */
     private synchronized void switchLightsInThread(Image vertical, Image horizontal, boolean newVerticalGreenValue) {
-        TasksHandler.runTask(new Task() {
+        new Thread(new Task() {
             @Override
             protected Object call() throws Exception {
                 try {
@@ -201,7 +201,7 @@ public class TrafficLightsAndCrossing {
                 }
                 return null;
             }
-        });
+        }).start();
     }
 
     /**

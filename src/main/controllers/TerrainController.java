@@ -45,14 +45,14 @@ public class TerrainController implements Initializable {
             if (simulationController == null) {
                 return;
             }
-            TasksHandler.runTask(new Task() {
+            new Thread(new Task() {
                 @Override
                 protected Object call() throws Exception {
                     simulationController.startSimulation(TerrainController.this);
                     Platform.runLater(() -> startSimulationButton.setDisable(true));
                     return null;
                 }
-            });
+            }).start();
         });
     }
 
