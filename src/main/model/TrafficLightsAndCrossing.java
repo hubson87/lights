@@ -5,7 +5,6 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import main.controllers.handlers.TasksHandler;
 
 import java.awt.*;
 import java.util.ArrayList;
