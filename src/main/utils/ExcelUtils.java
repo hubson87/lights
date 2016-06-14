@@ -1,11 +1,6 @@
 package main.utils;
 
 
-import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 import main.model.belts.TrafficBelt;
 import main.model.enums.WeatherEnum;
 import main.model.results.SpeedResult;
@@ -15,10 +10,17 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Created by Krzysztof Baran
@@ -29,6 +31,7 @@ public class ExcelUtils {
      * DateTimeFormatter do formatowania daty w nazwach plików
      */
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+
     /**
      * Funkcja główna, której zadaniem jest utwożenie nowego dokumentu typu excel oraz workbooka.
      * Dodatkowo woła funkcje pomocnicze do eksportu poszczególnych zakładek dokumentu.
@@ -122,7 +125,7 @@ public class ExcelUtils {
         XSSFRow row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Prędkości samochodów, które przekroczyły prędkość podczas pomiaru odcinkowego");
         Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
-            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+                Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
         );
         long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 120L;
 
@@ -186,14 +189,14 @@ public class ExcelUtils {
         XSSFRow row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Prędkości samochodów podczas pomiaru odcinkowego");
         Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
-            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+                Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
         );
         long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 0L;
 
         for (TrafficBelt belt : allBelts) {
             for (SpeedResult result : belt.getSpeedResults()) {
                 if (!NumberUtils.isInteger(result.getRadarSpeed()) || Long.valueOf(result.getRadarSpeed()) <= 0L ||
-                    Long.valueOf(result.getRadarSpeed()) > 300L) {
+                        Long.valueOf(result.getRadarSpeed()) > 300L) {
                     continue;
                 }
                 long speed = Long.valueOf(result.getRadarSpeed());
@@ -219,7 +222,7 @@ public class ExcelUtils {
         for (TrafficBelt belt : allBelts) {
             for (SpeedResult result : belt.getSpeedResults()) {
                 if (!NumberUtils.isInteger(result.getRadarSpeed()) || Long.valueOf(result.getRadarSpeed()) <= 0L ||
-                    Long.valueOf(result.getRadarSpeed()) > 300L) {
+                        Long.valueOf(result.getRadarSpeed()) > 300L) {
                     continue;
                 }
                 long speed = Long.valueOf(result.getRadarSpeed());
@@ -256,7 +259,7 @@ public class ExcelUtils {
         XSSFRow row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Średnie prędkości samochodów");
         Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
-            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+                Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
         );
         long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 0L;
 
@@ -381,7 +384,7 @@ public class ExcelUtils {
                     allResultsWithoutBeltsDivision.put(weatherEnumLongEntry.getKey(), 0L);
                 }
                 allResultsWithoutBeltsDivision.put(weatherEnumLongEntry.getKey(),
-                    allResultsWithoutBeltsDivision.get(weatherEnumLongEntry.getKey()) + weatherEnumLongEntry.getValue());
+                        allResultsWithoutBeltsDivision.get(weatherEnumLongEntry.getKey()) + weatherEnumLongEntry.getValue());
             }
         }
         rowNum += 2;
@@ -428,7 +431,7 @@ public class ExcelUtils {
                         collisionsInWeatherForBelt.put(speedResult.getCollisionWeather(), 0);
                     }
                     collisionsInWeatherForBelt
-                        .put(speedResult.getCollisionWeather(), collisionsInWeatherForBelt.get(speedResult.getCollisionWeather()) + 1);
+                            .put(speedResult.getCollisionWeather(), collisionsInWeatherForBelt.get(speedResult.getCollisionWeather()) + 1);
                     collisionsInWeather.put(speedResult.getCollisionWeather(), collisionsInWeather.get(speedResult.getCollisionWeather()) + 1);
                 }
             }
@@ -445,7 +448,7 @@ public class ExcelUtils {
         rowNum += 2;
         int chartsRowNum = 0;
         sheet.createRow(rowNum++).createCell(0).setCellValue("Summary");
-        chartsSheet.createRow(chartsRowNum++).createCell(0).setCellValue("Liczba kolizji względem pogody");
+        chartsSheet.createRow(chartsRowNum++).createCell(0).setCellValue("Liczba samochodów biorących udział w kolizji względem pogody");
         if (collisionsInWeather.isEmpty()) {
             sheet.createRow(rowNum++).createCell(0).setCellValue("No collisions detected");
             XSSFRow chartsRow = chartsSheet.createRow(chartsRowNum++);
@@ -516,7 +519,7 @@ public class ExcelUtils {
             cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
             for (SpeedResult speedResult : belt.getSpeedResults()) {
                 if (NumberUtils.isInteger(speedResult.getRadarSpeed()) && Integer.parseInt(speedResult.getRadarSpeed()) > 120
-                    && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
+                        && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
                     HSSFRow speedRow = sheet.createRow(rowNum++);
                     Cell radarSpeedCell = speedRow.createCell(0);
                     Cell radarSpeedValCell = speedRow.createCell(1);
@@ -549,7 +552,7 @@ public class ExcelUtils {
                 Cell radarSpeedValCell = speedRow.createCell(1);
                 radarSpeedCell.setCellValue("RadarMeasuredSpeed:");
                 if (NumberUtils.isInteger(speedResult.getRadarSpeed()) && Integer.parseInt(speedResult.getRadarSpeed()) > 0
-                    && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
+                        && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
                     radarSpeedValCell.setCellValue(Integer.parseInt(speedResult.getRadarSpeed()));
                 } else {
                     radarSpeedValCell.setCellValue(speedResult.getRadarSpeed());
