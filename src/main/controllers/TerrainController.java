@@ -189,9 +189,9 @@ public class TerrainController implements Initializable {
 
     /**
      * Metoda inicjalizująca i pokazująca ekran podsumowania działania aplikacji
-     * @param resFilename Plik z wynikami działania
+     * @param resFilename Pliki z wynikami działania
      */
-    public void showResultsScreen(String resFilename) {
+    public void showResultsScreen(List<String> resFilename) {
         Parent root;
         try {
             //Pobieramy plik z ekranem napisanym w xml-u i ładujemy go

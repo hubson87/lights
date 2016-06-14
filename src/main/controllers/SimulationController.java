@@ -150,10 +150,10 @@ public class SimulationController {
                         timer.cancel();
                         synchronized (weatherConditionsList) {
                             //Po zamknięciu timera, zbieramy rezultaty symulacji i zapisujemy je na dysku
-                            String resFilename = collectResultsToFiles(DateUtils.calculateInSeconds(iterationStart, LocalDateTime.now()),
+                            List<String> resFilenames = collectResultsToFiles(DateUtils.calculateInSeconds(iterationStart, LocalDateTime.now()),
                                 weatherConditionsList);
                             //W wątku UI inicjalizujemy i pokazujemy ekran podsumowania
-                            Platform.runLater(() -> terrainController.showResultsScreen(resFilename));
+                            Platform.runLater(() -> terrainController.showResultsScreen(resFilenames));
                         }
                     }
                 }
@@ -219,9 +219,9 @@ public class SimulationController {
      * Metoda pomocnicza, zbierająca informację do excela i zapisująca je na dysku
      * @param simulationTimeInSeconds Czas trwania symulacji w sekundach
      * @param weatherConditionsList Lista warunków pogodowych jakie trwały w czasie symulacji
-     * @return Nazwa pliku zapisanego na dysku
+     * @return Nazwa plików zapisanych na dysku
      */
-    private synchronized String collectResultsToFiles(long simulationTimeInSeconds, List<WeatherEnum> weatherConditionsList) {
+    private synchronized List<String> collectResultsToFiles(long simulationTimeInSeconds, List<WeatherEnum> weatherConditionsList) {
         return ExcelUtils.exportResults(getAllBelts(), weatherConditionsList, simulationTimeInSeconds);
     }
 

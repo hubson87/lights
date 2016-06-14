@@ -2,6 +2,7 @@ package main.controllers;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -76,10 +77,19 @@ public class ResultsController implements Initializable {
     /**
      * Metoda inicjalizuąca kontroler. Przekazywana jest do niej nazwa pliku z wynikami do wyświetlenia,
      * która ustawiana jest w labelce z podsumowaniem
-     * @param resFilename Nazwa pliku z wynikami
+     * @param resFileNames Nazwy plików z wynikami
      */
-    public void initController(String resFilename) {
-        summaryLabel.setText("Summary in file: " + resFilename + "\n");
+    public void initController(List<String> resFileNames) {
+        StringBuffer sb = new StringBuffer("Summary in files:\n");
+        int i = 1;
+        if (resFileNames != null && !resFileNames.isEmpty()) {
+            for (String fileName : resFileNames) {
+                sb.append(i++ + ". " + fileName + '\n');
+            }
+        } else {
+            sb.append("No results");
+        }
+        summaryLabel.setText(sb.toString());
     }
 
 }
