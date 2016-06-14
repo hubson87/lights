@@ -39,7 +39,8 @@
         <RadioButton fx:id="snowyRB" toggleGroup="$weatherGroup" text="Snowy" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="80"/>
         <RadioButton fx:id="glazeRB" toggleGroup="$weatherGroup" text="Glaze" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="80"/>
         <RadioButton fx:id="foggyRB" toggleGroup="$weatherGroup" text="Foggy" GridPane.columnIndex="2" GridPane.rowIndex="0" prefWidth="80"/>
-        <RadioButton fx:id="randWeatherRB" toggleGroup="$weatherGroup" text="Random" GridPane.columnIndex="3" GridPane.rowIndex="0" prefWidth="80"/>
+        <RadioButton fx:id="allWeatherRB" toggleGroup="$weatherGroup" text="All with constant period" GridPane.columnIndex="3" GridPane.rowIndex="0" prefWidth="160"/>
+        <RadioButton fx:id="randWeatherRB" toggleGroup="$weatherGroup" text="Random" GridPane.columnIndex="4" GridPane.rowIndex="0" prefWidth="80"/>
     </GridPane>
     <Label text="Algorithm:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
     <!--Radio buttony do wyboru zastosowanego algorytmu-->

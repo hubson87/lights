@@ -10,24 +10,29 @@ public enum  WeatherEnum {
     /**
      * Współczynniki pogody słonecznej
      */
-    SUNNY (20, 30, 40, 60, 3.0, 6, "sunny.png"),
+    SUNNY (0, 20, 30, 40, 60, 3.0, 6, "sunny.png"),
     /**
      * Współczynniki pogody deszczowej
      */
-    RAINY (10, 20, 40, 40, 2.0, 8, "rainy.png"),
+    RAINY (1, 10, 20, 40, 40, 2.0, 8, "rainy.png"),
     /**
      * Współczynniki pogody podczas opadów śniegu
      */
-    SNOWY (10, 20, 20, 30, 1.4, 10, "snowy.png"),
+    SNOWY (2, 10, 20, 20, 30, 1.4, 10, "snowy.png"),
     /**
      * Współczynniki podczas gołoledzi
      */
-    GLAZE (10, 10, 20, 20, 1.3, 30, "glaze.png"),
+    GLAZE (3, 10, 10, 20, 20, 1.3, 30, "glaze.png"),
     /**
      * Współczynniki pogody mglistej
      */
-    FOGGY (10, 20, 30, 30, 1.4, 10, "foggy.png");
+    FOGGY (4, 10, 20, 30, 30, 1.4, 10, "foggy.png"),
+    /**
+     * Sztuczny twór mówiący o tym, że pogoda ma być zmieniana po kolei z równym czasem, tak aby można było porównać wyniki
+     */
+    ALL(-1, 0, 0, 0, 0, 0, 0, "");
 
+    final int orderNumber;
     /**
      * Współczynniki odpowiadające za minimalną prędkość oraz maksymalną wartość losową dodawaną do minimalnej prędkości wolnejszych
      * samochodów dla danej pogody
@@ -57,6 +62,7 @@ public enum  WeatherEnum {
 
     /**
      * Konstruktor inicjujący wszystkie parametry ernumeratora
+     * @param no Numer porządkowy pogody
      * @param slowerMinFactor Minimalna prędkość wolniejszych samochodów dla danej pogody
      * @param slowerRandomFactor Maksymalna wartość losowa dodawana do prędkości minimalnej wolniejszych samochodów dla danej pogody
      * @param fasterMinFactor Minimalna prędkość szybszych samochodów dla danej pogody
@@ -65,8 +71,9 @@ public enum  WeatherEnum {
      * @param fasterCarProbabilityOneTo Odwrotnie proporcjonalne prawdopodobieństwo pojawienia się szybszego samochodu dla danej pogody
      * @param resourceFileName Nazwa obrazu wczytywanego jako tablica informatyjna o danej pogodzeie
      */
-    WeatherEnum(int slowerMinFactor, int slowerRandomFactor, int fasterMinFactor, int fasterRandomFactor, double stoppingDistanceFactor,
+    WeatherEnum(int no, int slowerMinFactor, int slowerRandomFactor, int fasterMinFactor, int fasterRandomFactor, double stoppingDistanceFactor,
                 int fasterCarProbabilityOneTo, String resourceFileName) {
+        this.orderNumber = no;
         this.slowerMinFactor = slowerMinFactor;
         this.slowerRandomFactor = slowerRandomFactor;
         this.fasterMinFactor = fasterMinFactor;
@@ -79,21 +86,48 @@ public enum  WeatherEnum {
 
     /**
      * Metoda pozwalająca na wylosowanie losowych warunków atmosferycznych
-     * @return
+     * @return Wylosowane warunki pogodowe
      */
     public static WeatherEnum getRandom() {
-        switch (random.nextInt(5)) {
-            case 0:
-                return SUNNY;
-            case 1:
-                return RAINY;
-            case 2:
-                return SNOWY;
-            case 3:
-                return GLAZE;
-            default:
-                return FOGGY;
+        return getFromOrderNo(random.nextInt(5));
+    }
+
+    /**
+     * Metoda zwracająca pogodę dla danego numeru porządkowego
+     * @param no Numer porządkowy pogody
+     * @return Znaleziona pogoda, wpp słoneczna
+     */
+    private static WeatherEnum getFromOrderNo(int no) {
+        if (no < 0) {
+            return SUNNY;
         }
+        for (WeatherEnum weatherEnum : WeatherEnum.values()) {
+            if (weatherEnum.orderNumber == no) {
+                return weatherEnum;
+            }
+        }
+        return WeatherEnum.SUNNY;
+    }
+
+    /**
+     * Metoda zwracająca kolejną pogodę względem aktualnej w porządku zakodowanym w enumeratorach, aby móc zacząć od początku
+     * Gdy wyjdzie poza wszystkie elementy, zwracana jest słoneczna
+     * @param currentWeather Aktualnie panująca pogoda
+     * @return Kolejna pogoda w porządku
+     */
+    public static WeatherEnum getNext(WeatherEnum currentWeather) {
+        if (currentWeather == null) {
+            return SUNNY;
+        }
+        return getFromOrderNo(currentWeather.orderNumber + 1);
+    }
+
+    /**
+     * Metoda zwracająca ilośc możliwych warunków pogodowych do ustawienia
+     * @return Ilość możliwych warunków pogodowych do ustawienia
+     */
+    public static int getAllowedWeatherCount() {
+        return WeatherEnum.values().length - 1; //-1 because of that ALL is not allowed to use as normal weather
     }
 
     /**

@@ -66,6 +66,10 @@ public class SimulationController {
      * Flaga mówiąca o tym, czy pogoda ma zmieniać się dynamicznie
      */
     private final boolean dynamicWeather;
+    /**
+     * Flaga mówiąca o tym, czy pogoda ma być iterowana po kolei w stałym czasie (true), czy ma być czysto losowa (false) jeśli ustawiona randomowa
+     */
+    private final boolean allWeatherIteration;
 
     /**
      * Konstruktor kotrolera symulacji, inicjalizujący odpowiednie wartości przed startem
@@ -83,9 +87,11 @@ public class SimulationController {
                                 int horizontalBeltsCount,
                                 int carsLimit, int simulationTime, int width, int height) {
         //Jeśli warunki pogodowe przekazane z okna są puste, świadczy to o dynamicznie zmiennej pogodzie
-        this.dynamicWeather = weatherConditions == null;
-        //Jeśli pogoda jest dynamiczna, to losujemy, wpp przypisujemy wybraną
-        this.weatherConditions = weatherConditions == null ? WeatherEnum.getRandom() : weatherConditions;
+        this.dynamicWeather = weatherConditions == null || weatherConditions == WeatherEnum.ALL;
+        this.allWeatherIteration = weatherConditions == WeatherEnum.ALL;
+        //Jeśli pogoda jest dynamiczna, to losujemy, wpp przypisujemy wybraną lub kolejną jeśli ustawione na pogody po kolei
+        this.weatherConditions = weatherConditions == null ? WeatherEnum.getRandom() :
+            (weatherConditions == WeatherEnum.ALL ? WeatherEnum.getNext(weatherConditions) : weatherConditions);
         //Zapisujemy historyczą wartość ostatniej pogody panującej na scenie
         weatherConditionsList = new ArrayList<>();
         weatherConditionsList.add(this.weatherConditions);
@@ -177,14 +183,19 @@ public class SimulationController {
         }
         //Jeśli ustawiliśmy dynamiczną pogodę, inicjalizujemy kolejny timer, który będzie ją zmieniał w stałym czasie
         //Pogoda zmieni się z pierwszym opóźnieniem 6sek (6000ms) i będzie się zmieniać co 18sek (18000ms)
+        //Natomiast jeśli pogoda ma się zmieniać po kolei, to:
+        //obliczamy czas zmiany tak, aby wszystkie pogody panowały w równym przedziale czasowym
+        //opóźnienie pierwszej zmiany ustawiamy na przedział czasowy + 1sek, aby zrównać opóźnienie startu symulacji
         if (dynamicWeather) {
             Timer weatherTimer = new Timer(true);
+            final int weatherChangePeriod = allWeatherIteration ? (simulationTime * 1000 / WeatherEnum.getAllowedWeatherCount()) : 18000;
+            final int weatherFirstChangeDelay = allWeatherIteration ? weatherChangePeriod + 1000 : 6000;
             weatherTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
                     synchronized (weatherConditions) {
                         //Pobieramy nową losową pogodę z enumeratora warunków pogodowych
-                        weatherConditions = WeatherEnum.getRandom();
+                        weatherConditions = allWeatherIteration ? WeatherEnum.getNext(weatherConditions) : WeatherEnum.getRandom();
                         //Zapisujemy nową pogodę do listy z historią pogody
                         synchronized (weatherConditionsList) {
                             weatherConditionsList.add(weatherConditions);
@@ -200,7 +211,7 @@ public class SimulationController {
                         }
                     }
                 }
-            }, 6000, 18000);
+            }, weatherFirstChangeDelay, weatherChangePeriod);
         }
     }
 

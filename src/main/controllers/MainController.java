@@ -90,6 +90,11 @@ public class MainController implements Initializable {
     @FXML
     private RadioButton foggyRB;
     /**
+     * Przycisk typu radio odpowiadający za iterowanie każdej pogody po kolei w stałym czasie
+     */
+    @FXML
+    private RadioButton allWeatherRB;
+    /**
      * Przycisk typu radio odpowiadający za algorytm zmieniający światła w stałym czasie
      */
     @FXML
@@ -185,6 +190,8 @@ public class MainController implements Initializable {
             return WeatherEnum.GLAZE;
         } else if (foggyRB.isSelected()) {
             return WeatherEnum.FOGGY;
+        } else if (allWeatherRB.isSelected()) {
+            return WeatherEnum.ALL;
         }
         return null;
     }
