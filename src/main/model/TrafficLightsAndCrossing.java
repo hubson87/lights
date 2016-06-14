@@ -270,7 +270,7 @@ public class TrafficLightsAndCrossing {
     /**
      * Metoda sprawdzająca, czy dany samochód znajduje się na skrzyżowaniu
      */
-    public boolean isCarOnTheCrossing(Point carPos, int beltHeight) {
+    public synchronized boolean isCarOnTheCrossing(Point carPos, int beltHeight) {
         return ((carPos.x >= getX1() && carPos.x <= getX2()) ||
                 (carPos.x + beltHeight >= getX1() && carPos.x + beltHeight <= getX2()))
                 && ((carPos.y >= getY1() && carPos.y <= getY2()) ||
@@ -281,7 +281,7 @@ public class TrafficLightsAndCrossing {
      * Metoda dodająca samochód do skrzyżowania jeśli jeszcze go nie ma
      * @param car Analizowany samochód
      */
-    public void addCarIfNotExists(Car car) {
+    public synchronized void addCarIfNotExists(Car car) {
         if (!containsCar(car)) {
             containingCars.add(car);
         }
@@ -291,7 +291,7 @@ public class TrafficLightsAndCrossing {
      * Metoda usuwająca samochód ze skrzyżowania jeśli istnieje na liście
      * @param car Analizowany samochód
      */
-    public void removeCar(Car car) {
+    public synchronized void removeCar(Car car) {
         if (containsCar(car)) {
             containingCars.remove(car);
         }

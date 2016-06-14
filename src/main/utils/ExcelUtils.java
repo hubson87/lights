@@ -26,8 +26,9 @@ public class ExcelUtils {
     /**
      * Funkcja główna, której zadaniem jest utwożenie nowego dokumentu typu excel oraz workbooka.
      * Dodatkowo woła funkcje pomocnicze do eksportu poszczególnych zakładek dokumentu.
-     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
-     * @param weatherConditions Lista warunków pogodowych jakie panowały na drodze podczas symulacji
+     *
+     * @param allBelts           Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param weatherConditions  Lista warunków pogodowych jakie panowały na drodze podczas symulacji
      * @param simulationDuration Czas trwania symulacji w sekundach
      * @return Nazwa pliku z podsumowaniem, który został utworzony przez aplikację
      */
@@ -39,6 +40,7 @@ public class ExcelUtils {
             HSSFWorkbook workbook = new HSSFWorkbook();
             exportCarsSimulationTimeAndWeather(allBelts, weatherConditions, simulationDuration, workbook);
             exportCarsThatLeftDuringTheWeather(allBelts, workbook);
+            exportCollisions(allBelts, workbook);
             exportSpeeds(allBelts, workbook);
             exportSpeedMeasurements(allBelts, workbook);
             exportOverSpeedMeasurements(allBelts, workbook);
@@ -62,10 +64,11 @@ public class ExcelUtils {
      * 2. Ilość samochodów, które opuściły ekran symulacji (zliczane z wszystkich pasów drogowych)
      * 3. Kolejno panujące warunki pogodowe na drodze
      * 4. Wyszczególnienie ilości saochodów, które opuściły scenę symulacji dla każdego z pasów drogowych
-     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
-     * @param weatherConditions Lista warunków pogodowych jakie panowały na drodze podczas symulacji
+     *
+     * @param allBelts           Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param weatherConditions  Lista warunków pogodowych jakie panowały na drodze podczas symulacji
      * @param simulationDuration Czas trwania symulacji w sekundach
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param workbook           Workbook excelowy, do którego zapisujemy arkusz
      */
     private static void exportCarsSimulationTimeAndWeather(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions,
                                                            long simulationDuration, HSSFWorkbook workbook) {
@@ -106,6 +109,7 @@ public class ExcelUtils {
      * Zbiera wyniki z wszystkich pasów, a następnie pobiera dane o ilości samochodów, które opuściły każdy z pasów
      * w danych warunkach pogodowych. Następnie zapisywane jest podsumowanie,
      * w których nie wyszczególniamy pasów drogowych.
+     *
      * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
      * @param workbook Workbook excelowy, do którego zapisujemy arkusz
      */
@@ -130,7 +134,7 @@ public class ExcelUtils {
                     allResultsWithoutBeltsDivision.get(weatherEnumLongEntry.getKey()) + weatherEnumLongEntry.getValue());
             }
         }
-        rowNum+=2;
+        rowNum += 2;
         HSSFRow row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Results without belts division:");
         for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : allResultsWithoutBeltsDivision.entrySet()) {
@@ -142,9 +146,64 @@ public class ExcelUtils {
     }
 
     /**
+     * Funkcja tworząca arkusz 'Collisions'.
+     * Zapisuje kolejno:
+     * Funkcja ta dla każdego z pasów i dla każdego z samochodów, zlicza w jakiej pogodzie ile było wypadków na danym pasie i zapisuje te wartości
+     * Potem zapisywane jest podsumowanie względem pogody, bez pasów
+     *
+     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     */
+    private static void exportCollisions(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
+        HSSFSheet sheet = workbook.createSheet("Collisions");
+        int rowNum = 0;
+        Map<WeatherEnum, Integer> collisionsInWeather = new HashMap<>();
+        for (TrafficBelt belt : allBelts) {
+            HSSFRow row = sheet.createRow(rowNum++);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
+            Map<WeatherEnum, Integer> collisionsInWeatherForBelt = new HashMap<>();
+            for (SpeedResult speedResult : belt.getSpeedResults()) {
+                if (speedResult.isHadCollision()) {
+                    if (!collisionsInWeather.containsKey(speedResult.getCollisionWeather())) {
+                        collisionsInWeather.put(speedResult.getCollisionWeather(), 0);
+                    }
+                    if (!collisionsInWeatherForBelt.containsKey(speedResult.getCollisionWeather())) {
+                        collisionsInWeatherForBelt.put(speedResult.getCollisionWeather(), 0);
+                    }
+                    collisionsInWeatherForBelt
+                        .put(speedResult.getCollisionWeather(), collisionsInWeatherForBelt.get(speedResult.getCollisionWeather()) + 1);
+                    collisionsInWeather.put(speedResult.getCollisionWeather(), collisionsInWeather.get(speedResult.getCollisionWeather()) + 1);
+                }
+            }
+            if (collisionsInWeatherForBelt.isEmpty()) {
+                sheet.createRow(rowNum++).createCell(0).setCellValue("No collisions detected");
+            } else {
+                for (Map.Entry<WeatherEnum, Integer> weatherBeltCollisionEntry : collisionsInWeatherForBelt.entrySet()) {
+                    row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(weatherBeltCollisionEntry.getKey().name());
+                    row.createCell(1).setCellValue(weatherBeltCollisionEntry.getValue());
+                }
+            }
+        }
+        rowNum+=2;
+        sheet.createRow(rowNum++).createCell(0).setCellValue("Summary");
+        if (collisionsInWeather.isEmpty()) {
+            sheet.createRow(rowNum++).createCell(0).setCellValue("No collisions detected");
+        } else {
+            for (Map.Entry<WeatherEnum, Integer> weatherBeltCollisionEntry : collisionsInWeather.entrySet()) {
+                HSSFRow row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(weatherBeltCollisionEntry.getKey().name());
+                row.createCell(1).setCellValue(weatherBeltCollisionEntry.getValue());
+            }
+        }
+    }
+
+    /**
      * Funkcja, która tworzy arkusz 'SpeedForWeather'
      * Funkcja ta dla każdego z pasów, a następnie dla każdego z samochodów zapisuje pogodę oraz średnią prędkość
      * jaką posiadał samochód w zadanych warunkach pogodowych
+     *
      * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
      * @param workbook Workbook excelowy, do którego zapisujemy arkusz
      */
@@ -180,6 +239,7 @@ public class ExcelUtils {
      * Funkcja zbiera z wszystkich samochodów odcinkowe pomiary prędkości na poszczególnych pasach (jeśli istnieje),
      * a następnie sprawdzamy, czy prędkość na danym odcinku przekracza dozwoloną prędkość na trasie (120 km/h).
      * Jeśli tak, to rejestruje zadany przypadek na arkuszu.
+     *
      * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
      * @param workbook Workbook excelowy, do którego zapisujemy arkusz
      */
@@ -206,6 +266,7 @@ public class ExcelUtils {
      * Funkcja tworząca arkusz 'SpeedMeasurements'
      * Zbiera ona dla wszystkich samochodów wartości pomiarów odcinkowych i zapisuje je na formularzu
      * (z podziałem na pasy)
+     *
      * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
      * @param workbook Workbook excelowy, do którego zapisujemy arkusz
      */
@@ -235,6 +296,7 @@ public class ExcelUtils {
      * Funkcja tworząca arkusz 'AverageSpeedResults'
      * Zadaniem jej jest pobranie ze wszystkich samochodów średnich prędkości przejazdów przez całą przebytą trasę.
      * Prędkości te rejestrowane są z podziałem na pasy drogowe
+     *
      * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
      * @param workbook Workbook excelowy, do którego zapisujemy arkusz
      */

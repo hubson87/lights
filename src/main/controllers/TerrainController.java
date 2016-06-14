@@ -112,7 +112,7 @@ public class TerrainController implements Initializable {
      */
     public void removeCarsFromStage(List<ImageView> cars) {
         if (cars != null && !cars.isEmpty()) {
-            Platform.runLater(() -> terrainMainPanel.getChildren().removeAll(cars));
+            terrainMainPanel.getChildren().removeAll(cars);
         }
     }
 

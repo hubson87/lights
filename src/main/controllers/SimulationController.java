@@ -129,7 +129,7 @@ public class SimulationController {
      * @param terrainController Kontroler graficznej reprezentacji ekranu symulacji
      */
     public void startSimulation(final TerrainController terrainController) {
-        //Ustawiamy 30 klatek na sekundę, aby animacja była płynna
+        //Ustawiamy 30 milisekund na każdą iterację
         final int taskPeriod = 30;
         //Obliczamy ile iteracji potrzebujemy, aby zachować czas symulacji przy ustalonej ilości klatek na sekundę
         final double[] interval = { (double) simulationTime * 1000.0 / (double) taskPeriod };
@@ -141,10 +141,10 @@ public class SimulationController {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                //Wywołujey iterację symulacji
-                simulationIteration(terrainController);
-                //Sprawdzamy, czy jeszcze powinniśmy wywoływać kolejną iterację?
                 synchronized (interval) {
+                    //Wywołujey iterację symulacji
+                    simulationIteration(terrainController);
+                    //Sprawdzamy, czy jeszcze powinniśmy wywoływać kolejną iterację?
                     if (--interval[0] <= 1) {
                         //Jeśli nie kontynuujemy, to zamykamy timer
                         timer.cancel();
@@ -173,10 +173,10 @@ public class SimulationController {
                             timer2.cancel();
                             return;
                         }
-                    }
-                    //Dla każdego ze skrzyżowań, zmieniamy światła
-                    for (TrafficLightsAndCrossing cross : crossings) {
-                        cross.changeLights();
+                        //Dla każdego ze skrzyżowań, zmieniamy światła
+                        for (TrafficLightsAndCrossing cross : crossings) {
+                            cross.changeLights();
+                        }
                     }
                 }
             }, 3000, 6000);
@@ -193,7 +193,7 @@ public class SimulationController {
             weatherTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    synchronized (weatherConditions) {
+                    synchronized (interval) {
                         //Pobieramy nową losową pogodę z enumeratora warunków pogodowych
                         weatherConditions = allWeatherIteration ? WeatherEnum.getNext(weatherConditions) : WeatherEnum.getRandom();
                         //Zapisujemy nową pogodę do listy z historią pogody
@@ -229,7 +229,7 @@ public class SimulationController {
      * Metoda wywołująca wszystkie składowe jednej iteracji symulacji
      * @param terrainController Kontroler graficznej reprezentacji ekranu symulacji
      */
-    private void simulationIteration(final TerrainController terrainController) {
+    private synchronized void simulationIteration(final TerrainController terrainController) {
         //W wątku UI:
         Platform.runLater(() -> {
             //Flaga, mówiąca o tym, czy powinniśmy zmienić światła, jeśli wybrany został algorytm ziany świateł

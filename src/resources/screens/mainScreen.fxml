@@ -52,7 +52,7 @@
     <!--Spinner do wyboru czasu symulacji-->
     <Spinner fx:id="timeSpinner" GridPane.columnIndex="1" GridPane.rowIndex="7" editable="true">
         <valueFactory>
-            <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="120" initialValue="60"/>
+            <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="180" initialValue="60"/>
         </valueFactory>
         <editable>true</editable>
     </Spinner>

@@ -22,17 +22,29 @@ public class SpeedResult {
      * Mapa zawierająca warunki pogodowe oraz średnie prędkości zadanego pojazdu w tych warunkach
      */
     private final Map<WeatherEnum, List<Long>> weatherSpeeds;
+    /**
+     * Flaga mówiąca o tym, czy samochód miał wypadek
+     */
+    private final boolean hadCollision;
+    /**
+     * Pogoda w trakcie trwania której miał miejsce wypadek
+     */
+    private final WeatherEnum collisionWeather;
 
     /**
      * Konstruktor ustawiający wszystkie parametry
      * @param averageSpeed Średnia prędkość pojazdu na scenie
      * @param radarSpeed Prędkość pojazdu zmierzona na pomiarze odcinkowym
      * @param weatherSpeeds Mapa zawierająca warunki pogodowe oraz średnie prędkości zadanego pojazdu w tych warunkach
+     * @param hadCollision Flaga mówiąca o tym, czy samochód miał wypadek
+     * @param collisionWeather Pogoda w trakcie trwania której miał miejsce wypadek
      */
-    public SpeedResult(long averageSpeed, String radarSpeed, Map weatherSpeeds) {
+    public SpeedResult(long averageSpeed, String radarSpeed, Map weatherSpeeds, boolean hadCollision, WeatherEnum collisionWeather) {
         this.averageSpeed = averageSpeed;
         this.radarSpeed = radarSpeed;
         this.weatherSpeeds = weatherSpeeds;
+        this.hadCollision = hadCollision;
+        this.collisionWeather = collisionWeather;
     }
 
     /**
@@ -57,5 +69,21 @@ public class SpeedResult {
      */
     public Map<WeatherEnum, List<Long>> getWeatherSpeeds() {
         return weatherSpeeds;
+    }
+
+    /**
+     * Getter dla flagi mówiącej o tym, czy samochód miał wypadek
+     * @return Flaga mówiąca o tym, czy samochód miał wypadek
+     */
+    public boolean isHadCollision() {
+        return hadCollision;
+    }
+
+    /**
+     * Getter dla pogody w trakcie trwania której miał miejsce wypadek
+     * @return Pogoda w trakcie trwania której miał miejsce wypadek
+     */
+    public WeatherEnum getCollisionWeather() {
+        return collisionWeather;
     }
 }

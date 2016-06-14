@@ -93,15 +93,16 @@ public abstract class TrafficBelt {
 
     /**
      * Konstruktor pasa
-     * @param beltNumber Numer pasa
-     * @param carsLimit Limit samochodów na zadanym pasie
-     * @param xPos Wartość na osi X lewego górnego rogu pasa
-     * @param yPos Wartość na osi Y lewego górnego rogu pasa
-     * @param width Szerokość pasa (oś X)
-     * @param height Wysokość pasa (oś Y)
-     * @param beltDirection Kierunek poruszania się samochodów na pasie
+     *
+     * @param beltNumber         Numer pasa
+     * @param carsLimit          Limit samochodów na zadanym pasie
+     * @param xPos               Wartość na osi X lewego górnego rogu pasa
+     * @param yPos               Wartość na osi Y lewego górnego rogu pasa
+     * @param width              Szerokość pasa (oś X)
+     * @param height             Wysokość pasa (oś Y)
+     * @param beltDirection      Kierunek poruszania się samochodów na pasie
      * @param speedControlXStart Początek pomiaru odcinkowego na osi X
-     * @param speedControlXEnd Koniec pomiaru odcinkowego na osi X
+     * @param speedControlXEnd   Koniec pomiaru odcinkowego na osi X
      */
     public TrafficBelt(int beltNumber, int carsLimit, int xPos, int yPos, int width, int height, DirectionEnum beltDirection,
                        Integer speedControlXStart, Integer speedControlXEnd) {
@@ -126,29 +127,33 @@ public abstract class TrafficBelt {
 
     /**
      * Abstrakcyjna metoda, która ma sprawdzić kolizje pomiędzy dwoma samochodami, zależnie od kierunku jazdy
+     *
      * @param car Samochód 1
-     * @param c Samochód 2
+     * @param c   Samochód 2
      * @return True jeśli kolizja, wpp false
      */
     protected abstract boolean collisionBetweenTwoCars(Car car, Car c);
 
     /**
      * Abstrakcyjna metoda, która ma sprawdzić czy samochód ma jeszcze duży dystans do skrzyżowania
-     * @param car Aktualnie analizowany samochód
+     *
+     * @param car          Aktualnie analizowany samochód
      * @param nextCrossing Najbliższe skrzyżowanie do którego się zbliża
      * @return True jeśli ma spory dystans, wpp false
      */
-    protected abstract boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing) ;
+    protected abstract boolean hasDistanceToCrossing(Car car, TrafficLightsAndCrossing nextCrossing);
 
     /**
      * Sprawdzenie, czy samochód ma zielone światło na następnym skrzyżowaniu (zależy od kierunku pasa)
+     *
      * @param nextCrossing Najbliższe skrzyżowanie do którego się zbliża
      * @return True jeśi światło jest zielone, wpp false
      */
-    protected abstract boolean hasGreenLight(TrafficLightsAndCrossing nextCrossing) ;
+    protected abstract boolean hasGreenLight(TrafficLightsAndCrossing nextCrossing);
 
     /**
      * Metoda znajdująca najbliższe skrzyżowanie, do którego zbliża się pojazd (zależy od kierunku pasa)
+     *
      * @param carPos Pozycja samochodu
      * @return Najbliższe skrzyżowanie
      */
@@ -157,12 +162,14 @@ public abstract class TrafficBelt {
     /**
      * Metoda, która znajduje wszystkie samochody, które opuściły scenę zwraca obiekty, woła logikę usunięcia samochodu,
      * funkcję cleanup oraz przekazuje listę samochodów do usunięcia z ekranu za pomocą jego kontrolera
+     *
      * @return Lista samochodów do usunięcia z ekranu
      */
     protected abstract List<ImageView> cleanup();
 
     /**
      * Getter inicjalizujący listę skrzyżowań jeśli jest nie zainicjalizowana i zwracający ową listę
+     *
      * @return Lista skrzyżowań z danym pasem
      */
     public List<TrafficLightsAndCrossing> getCrossingAndLights() {
@@ -175,6 +182,7 @@ public abstract class TrafficBelt {
     /**
      * Metoda dodająca nowy samochód na pas.
      * Jeśli liczba samochodów przekracza limit, to samochód ten nie jest dodawany
+     *
      * @param weatherConditions
      * @return
      */
@@ -190,7 +198,7 @@ public abstract class TrafficBelt {
             weatherConditions);
         //Jeśli pojazd ma możliwe jakieś kolizje na pozycji początkowej (inny dodany samochód nie zdążył odjechać),
         //to samochód nie jest dodawany
-        if (hasAnyPossibleCollision(car)) {
+        if (carHasPossibleCollisionOnEntry(car)) {
             return null;
         }
         //Dodanie nowego samochodu do pasa i zwrócenie go wyżej, aby można było dodać go do sceny w kontrolerze
@@ -198,8 +206,27 @@ public abstract class TrafficBelt {
         return car;
     }
 
+    protected synchronized boolean carHasPossibleCollisionOnEntry(Car car) {
+        Car tempCar = new Car(car);
+        Car tempCarMoved = new Car(car);
+        Car tempCarMovedTwice = new Car(car);
+        tempCarMoved.go();
+        tempCarMovedTwice.go();
+        tempCarMovedTwice.go();
+        for (Car c : containingCars) {
+            if (c == car) { continue; }
+            //Sprawdzenie kolizji na pasie dla dodawanego samochodu i dla tego samego samochodu po jednym i dwóch ruchach
+            if (checkFullCollisionBetweenTwoCars(tempCar, c) || checkFullCollisionBetweenTwoCars(tempCarMoved, c) ||
+                checkFullCollisionBetweenTwoCars(tempCarMovedTwice, c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Metoda zmieniająca prędkości maksymalne samochodów jeśli zmianie uległa pogoda na scenie
+     *
      * @param weatherConditions Aktualna, nowa pogoda na scenie
      */
     public synchronized void changeCarsSpeed(WeatherEnum weatherConditions) {
@@ -210,6 +237,7 @@ public abstract class TrafficBelt {
 
     /**
      * Ustawienie losowej prędkości do samochodu z uwzględnieniem maksymalnych i minimalnych wartości z warunków pogodowych
+     *
      * @param weatherConditions Aktualne warunki pogodowe
      * @return Obliczona prędkość samochodu
      */
@@ -225,6 +253,7 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla graficznej reprezentacji pasa ruchu
+     *
      * @return Graficzna reprezentacja pasa ruchu
      */
     public Rectangle getBeltGraphics() {
@@ -234,9 +263,10 @@ public abstract class TrafficBelt {
     /**
      * Metoda, której zadaniem jest sprawdzenie czy samochód może się poruszać dalej i jeśli tak, to wołana jest
      * funkcja go, wpp. samochód jest wyhamowywany funkcją stop
+     *
      * @return Lista obiektów graficznych, które po iteracji wyszły poza scenę i należy je usunąć w kontrolerze
      */
-    public List<ImageView> moveCars() {
+    public synchronized List<ImageView> moveCars() {
         for (Car car : containingCars) {
             //Jeśli samochód może jechać, to przyspieszamy go jeśli to możliwe i przesuwamy,
             //wpp hamujemy go i przesuwamy, ew. zatrzymujemy jeśli prędkość spadła do 0
@@ -268,8 +298,9 @@ public abstract class TrafficBelt {
      * Sprawdzenia są następujące:
      * 1. Czy samochód ma jakieś prawdopodobne kolizje na pasie
      * 2. Czy samochód ma zielone światło i nie powoduje kolizji na połowie pasów skrzyżowania,
-     *      aby swobodnie przez nie przejechać
+     * aby swobodnie przez nie przejechać
      * 3. Czy ma czerwone światło i ma nadal dystans do tego skrzyżowania, który może pokonać
+     *
      * @param car Aktualnie analizowany samochód
      * @return True jeśli samochód może jechać, wpp false
      */
@@ -298,8 +329,9 @@ public abstract class TrafficBelt {
 
     /**
      * Metoda sprawdzająca, czy po przekroczeniu połowy pasów skrzyżowania, samochód nie spowoduje kolizji z innym
+     *
      * @param crossing Aktualne skrzyżowanie
-     * @param car Aktualnie analizowany samochód
+     * @param car      Aktualnie analizowany samochód
      * @return True gdy spowoduje kolizję w trzech ruchach, wpp false.
      */
     private boolean hasCollisionOnTheCurrentCrossing(TrafficLightsAndCrossing crossing, Car car) {
@@ -349,20 +381,22 @@ public abstract class TrafficBelt {
 
     /**
      * Sprawdzenie kolizji dwóch samochodów używając obu osi X, Y
-     * @param c Samochód 1
+     *
+     * @param c       Samochód 1
      * @param tempCar Samochód 2
      * @return True jeśli kolizja, false wpp
      */
     protected boolean checkFullCollisionBetweenTwoCars(Car c, Car tempCar) {
         boolean yCollision = ((c.getY() >= tempCar.getY() && c.getY() <= tempCar.getY() + BELT_HEIGHT) ||
-                (tempCar.getY() >= c.getY() && tempCar.getY() <= c.getY() + BELT_HEIGHT));
+            (tempCar.getY() >= c.getY() && tempCar.getY() <= c.getY() + BELT_HEIGHT));
         boolean xCollision = ((c.getX() >= tempCar.getX() && c.getX() <= tempCar.getX() + BELT_HEIGHT) ||
-                (tempCar.getX() >= c.getX() && tempCar.getX() <= c.getX() + BELT_HEIGHT));
+            (tempCar.getX() >= c.getX() && tempCar.getX() <= c.getX() + BELT_HEIGHT));
         return xCollision && yCollision;
     }
 
     /**
      * Sprawdzenie, czy samochód ma potencjalne kolizje na tym samym pasie na którym się znajduje
+     *
      * @param car Aktualnie analizowany samochód
      * @return True jeśli kolizja, wpp false
      */
@@ -383,20 +417,30 @@ public abstract class TrafficBelt {
      * Metoda usuwająca samochody, które opuściły już pas.
      * Następnie zbiera dane statystyczne, dodaje ilość samochodów dla aktualnej pogody (gdyż w niej opuściły scenę)
      * oraz aktualizuje ilość samochodów, które opuściły scenę
+     *
      * @param carsToRemove
      */
-    protected void clear(List<Car> carsToRemove) {
+    protected synchronized void clear(List<Car> carsToRemove) {
         synchronized (containingCars) {
             containingCars.removeAll(carsToRemove);
-            speedResults.addAll(carsToRemove.stream().map(car -> new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather()))
-                .collect(Collectors.toList()));
-            countWeatherCars(carsToRemove);
-            carsThatLeftTheStage += carsToRemove.size();
+            for (TrafficLightsAndCrossing crossingAndLight : crossingAndLights) {
+                crossingAndLight.getContainingCars().removeAll(carsToRemove);
+            }
+            synchronized (speedResults) {
+                speedResults.addAll(carsToRemove.stream().map(car ->
+                    new SpeedResult(car.getAverageSpeed(), car.getRadarMeasuredSpeed(), car.getSpeedsForWeather(), car.isInCollision(),
+                        car.getCollisionWeather()))
+                    .collect(Collectors.toList()));
+
+                countWeatherCars(carsToRemove);
+                carsThatLeftTheStage += carsToRemove.size();
+            }
         }
     }
 
     /**
      * Metoda, która dodaje do mapy ilość samochodów, które opuściły scenę w aktualnej pogodzie
+     *
      * @param carsToRemove Lista samochodów, które zostaną usunięte
      */
     private synchronized void countWeatherCars(List<Car> carsToRemove) {
@@ -413,6 +457,7 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla kierunku poruszania się po pasie drogowym
+     *
      * @return Kierunek poruszania się po pasie drogowym
      */
     public DirectionEnum getBeltDirection() {
@@ -421,14 +466,16 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla statystyk prędkościowych i pogodowych każdego z samochodów
+     *
      * @return Statystyki prędkościowe i pogodowe każdego z samochodów
      */
-    public List<SpeedResult> getSpeedResults() {
+    public synchronized List<SpeedResult> getSpeedResults() {
         return speedResults;
     }
 
     /**
      * Getter dla współczynnika odległości hamowania w zależności od pogody
+     *
      * @return Współczynnik odległości hamowania w zależności od pogody
      */
     public static double getStoppingDistFact() {
@@ -439,6 +486,7 @@ public abstract class TrafficBelt {
 
     /**
      * Setter dla współczynnika odległości hamowania w zależności od pogody
+     *
      * @param stoppingDistFact Współczynnik odległości hamowania w zależności od pogody
      */
     public static void setStoppingDistFact(double stoppingDistFact) {
@@ -449,6 +497,7 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla numeru pasa
+     *
      * @return Numer pasa
      */
     public int getBeltNumber() {
@@ -457,6 +506,7 @@ public abstract class TrafficBelt {
 
     /**
      * Sprawdzenie, czy ilość prób dodania samochodu/ruszenia samochodu przekroczyła limit
+     *
      * @return True, jeśli ilość prób dodania samochodu/ruszenia samochodu przekroczyła limit, wpp false
      */
     public synchronized boolean isAboveMaxTries() {
@@ -472,6 +522,7 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla mapy samochodów, które opuściły scenę w zadanych warunkach pogodowych
+     *
      * @return Mapa samochodów, które opuściły scenę w zadanych warunkach pogodowych
      */
     public Map<WeatherEnum, Long> getCarsThatLeftTheStageWithWeather() {
@@ -480,6 +531,7 @@ public abstract class TrafficBelt {
 
     /**
      * Getter dla ilości samochodów, które w ogóle opuściły scenę
+     *
      * @return Ilość samochodów, które w ogóle opuściły scenę
      */
     public long getCarsThatLeftTheStage() {
