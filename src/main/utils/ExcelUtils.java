@@ -6,9 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import main.model.belts.TrafficBelt;
 import main.model.enums.WeatherEnum;
@@ -36,18 +39,28 @@ public class ExcelUtils {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             String filename = "speeds_" + formatter.format(LocalDateTime.now()) + ".xls";
+            String chartsFilename = "charts_" + formatter.format(LocalDateTime.now()) + ".xls";
             FileOutputStream fos = new FileOutputStream(filename);
-            HSSFWorkbook workbook = new HSSFWorkbook();
-            exportCarsSimulationTimeAndWeather(allBelts, weatherConditions, simulationDuration, workbook);
-            exportCarsThatLeftDuringTheWeather(allBelts, workbook);
-            exportCollisions(allBelts, workbook);
-            exportSpeeds(allBelts, workbook);
-            exportSpeedMeasurements(allBelts, workbook);
-            exportOverSpeedMeasurements(allBelts, workbook);
-            exportSpeedDuringTheWeather(allBelts, workbook);
-            workbook.write(fos);
+            FileOutputStream chartsFos = new FileOutputStream(chartsFilename);
+            HSSFWorkbook dataWorkbook = new HSSFWorkbook();
+            HSSFWorkbook chartsWorkbook = new HSSFWorkbook();
+            exportCarsSimulationTimeAndWeather(allBelts, weatherConditions, simulationDuration, dataWorkbook);
+            exportCarsThatLeftDuringTheWeather(allBelts, dataWorkbook, chartsWorkbook);
+            exportCollisions(allBelts, dataWorkbook, chartsWorkbook);
+            exportSpeeds(allBelts, dataWorkbook);
+            exportSpeedMeasurements(allBelts, dataWorkbook);
+            exportOverSpeedMeasurements(allBelts, dataWorkbook);
+            exportSpeedDuringTheWeather(allBelts, dataWorkbook);
+            exportSpeedChartsWithinTheSpeed(allBelts, chartsWorkbook);
+            exportRadarSpeedChartsWithinTheSpeed(allBelts, chartsWorkbook);
+            exportOverSpeedChartsWithinTheSpeed(allBelts, chartsWorkbook);
+            exportAverageSpeedChartsWithinTheWeather(allBelts, chartsWorkbook);
+            dataWorkbook.write(fos);
+            chartsWorkbook.write(chartsFos);
             fos.flush();
             fos.close();
+            chartsFos.flush();
+            chartsFos.close();
             return filename;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -55,6 +68,222 @@ public class ExcelUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Metoda eksportująca średnie prędkości względem pogody przeliczone odpowiednio
+     *
+     * @param allBelts       Wszystkie pasy drogowe
+     * @param chartsWorkbook Workbook z wykresami
+     */
+    private static void exportAverageSpeedChartsWithinTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = chartsWorkbook.createSheet("Weather average speed");
+        int rowNum = 0;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Średnia prędkość samochodów dla zadanej pogody");
+        Map<WeatherEnum, List<Long>> weatherSpeeds = new HashMap<>();
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                for (Map.Entry<WeatherEnum, List<Long>> weatherEntry : result.getWeatherSpeeds().entrySet()) {
+                    if (!weatherSpeeds.containsKey(weatherEntry.getKey())) {
+                        weatherSpeeds.put(weatherEntry.getKey(), new ArrayList<>());
+                    }
+                    weatherSpeeds.get(weatherEntry.getKey()).addAll(weatherEntry.getValue());
+                }
+            }
+        }
+        for (Map.Entry<WeatherEnum, List<Long>> weatherEntry : weatherSpeeds.entrySet()) {
+            double avgSpeed = 0.0;
+            for (Long speed : weatherEntry.getValue()) {
+                avgSpeed += speed;
+            }
+            if (avgSpeed != 0) {
+                avgSpeed = avgSpeed / (double) weatherEntry.getValue().size();
+            }
+            row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(weatherEntry.getKey().getPlName());
+            row.createCell(1).setCellValue((int) avgSpeed);
+        }
+    }
+
+    /**
+     * Funkcja służąca do eksportu pogrupowanych danych dla samochodów, które przekroczyły prędkość na pomiarze odcinkowym
+     *
+     * @param allBelts       Wszystkie pasy drogowe
+     * @param chartsWorkbook Workbook z wykresami
+     */
+    private static void exportOverSpeedChartsWithinTheSpeed(List<TrafficBelt> allBelts, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = chartsWorkbook.createSheet("Cars radar over speeds");
+        int rowNum = 0;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Prędkości samochodów, które przekroczyły prędkość podczas pomiaru odcinkowego");
+        Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
+            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+        );
+        long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 120L;
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                if (!NumberUtils.isInteger(result.getRadarSpeed())) {
+                    continue;
+                }
+                if (Long.valueOf(result.getRadarSpeed()) > 120L && Long.valueOf(result.getRadarSpeed()) < 300L) {
+                    long speed = Long.valueOf(result.getRadarSpeed());
+                    long lowerBound = speed / 10 * 10;
+                    long higherBound = lowerBound + 9;
+                    if (lowerBound < minSpeedRange) {
+                        minSpeedRange = lowerBound;
+                    }
+                    if (higherBound > maxSpeedRange) {
+                        maxSpeedRange = higherBound;
+                    }
+                }
+            }
+        }
+        //inicjalizujemy wejściowe przedziały, żeby były wszystkie, nawet puste
+        for (long i = minSpeedRange; i <= maxSpeedRange; i += 10) {
+            carsWithinTheSpeed.put(i + " - " + (i + 9), 0L);
+        }
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                if (!NumberUtils.isInteger(result.getRadarSpeed())) {
+                    continue;
+                }
+                if (Long.valueOf(result.getRadarSpeed()) > 120L && Long.valueOf(result.getRadarSpeed()) < 300L) {
+                    long speed = Long.valueOf(result.getRadarSpeed());
+                    long lowerBound = speed / 10 * 10;
+                    long higherBound = lowerBound + 9;
+                    String range = lowerBound + " - " + higherBound;
+                    if (!carsWithinTheSpeed.containsKey(range)) {
+                        carsWithinTheSpeed.put(range, 0L);
+                    }
+                    carsWithinTheSpeed.put(range, carsWithinTheSpeed.get(range) + 1);
+                }
+            }
+        }
+
+        for (Map.Entry<String, Long> speedRange : carsWithinTheSpeed.entrySet()) {
+            row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(speedRange.getKey());
+            row.createCell(1).setCellValue(speedRange.getValue());
+        }
+    }
+
+    /**
+     * Funkcja służąca do eksportu pogrupowanych danych dla samochodów, które brały udział w pomiarze odcinkowym
+     *
+     * @param allBelts       Wszystkie pasy drogowe
+     * @param chartsWorkbook Workbook z wykresami
+     */
+    private static void exportRadarSpeedChartsWithinTheSpeed(List<TrafficBelt> allBelts, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = chartsWorkbook.createSheet("Cars radar speeds");
+        int rowNum = 0;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Prędkości samochodów podczas pomiaru odcinkowego");
+        Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
+            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+        );
+        long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 0L;
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                if (!NumberUtils.isInteger(result.getRadarSpeed()) || Long.valueOf(result.getRadarSpeed()) <= 0L ||
+                    Long.valueOf(result.getRadarSpeed()) > 300L) {
+                    continue;
+                }
+                long speed = Long.valueOf(result.getRadarSpeed());
+                long lowerBound = speed / 10 * 10;
+                long higherBound = lowerBound + 9;
+                if (lowerBound < minSpeedRange) {
+                    minSpeedRange = lowerBound;
+                }
+                if (higherBound > maxSpeedRange) {
+                    maxSpeedRange = higherBound;
+                }
+            }
+        }
+        //inicjalizujemy wejściowe przedziały, żeby były wszystkie, nawet puste
+        for (long i = minSpeedRange; i <= maxSpeedRange; i += 10) {
+            carsWithinTheSpeed.put(i + " - " + (i + 9), 0L);
+        }
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                if (!NumberUtils.isInteger(result.getRadarSpeed()) || Long.valueOf(result.getRadarSpeed()) <= 0L ||
+                    Long.valueOf(result.getRadarSpeed()) > 300L) {
+                    continue;
+                }
+                long speed = Long.valueOf(result.getRadarSpeed());
+                long lowerBound = speed / 10 * 10;
+                long higherBound = lowerBound + 9;
+                String range = lowerBound + " - " + higherBound;
+                if (!carsWithinTheSpeed.containsKey(range)) {
+                    carsWithinTheSpeed.put(range, 0L);
+                }
+                carsWithinTheSpeed.put(range, carsWithinTheSpeed.get(range) + 1);
+            }
+        }
+
+        for (Map.Entry<String, Long> speedRange : carsWithinTheSpeed.entrySet()) {
+            row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(speedRange.getKey());
+            row.createCell(1).setCellValue(speedRange.getValue());
+        }
+    }
+
+    /**
+     * Metoda eksportująca średnią prędkość samochodów z podziałem na sekcje co 10km/h
+     *
+     * @param allBelts       Wszystkie pasy drogowe
+     * @param chartsWorkbook Workbook z generowanymi wykresami
+     */
+    private static void exportSpeedChartsWithinTheSpeed(List<TrafficBelt> allBelts, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = chartsWorkbook.createSheet("Cars avg speeds");
+        int rowNum = 0;
+        HSSFRow row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue("Średnie prędkości samochodów");
+        Map<String, Long> carsWithinTheSpeed = new TreeMap<>((Comparator<String>) (o1, o2) ->
+            Integer.valueOf(o1.split(" ")[0]).compareTo(Integer.valueOf(o2.split(" ")[0]))
+        );
+        long minSpeedRange = Long.MAX_VALUE, maxSpeedRange = 0L;
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                long avgSpeed = result.getAverageSpeed();
+                long lowerBound = avgSpeed / 10 * 10;
+                long higherBound = lowerBound + 9;
+                if (lowerBound < minSpeedRange) {
+                    minSpeedRange = lowerBound;
+                }
+                if (higherBound > maxSpeedRange) {
+                    maxSpeedRange = higherBound;
+                }
+            }
+        }
+        //inicjalizujemy wejściowe przedziały, żeby były wszystkie, nawet puste
+        for (long i = minSpeedRange; i <= maxSpeedRange; i += 10) {
+            carsWithinTheSpeed.put(i + " - " + (i + 9), 0L);
+        }
+
+        for (TrafficBelt belt : allBelts) {
+            for (SpeedResult result : belt.getSpeedResults()) {
+                long avgSpeed = result.getAverageSpeed();
+                long lowerBound = avgSpeed / 10 * 10;
+                long higherBound = lowerBound + 9;
+                String range = lowerBound + " - " + higherBound;
+                if (!carsWithinTheSpeed.containsKey(range)) {
+                    carsWithinTheSpeed.put(range, 0L);
+                }
+                carsWithinTheSpeed.put(range, carsWithinTheSpeed.get(range) + 1);
+            }
+        }
+
+        for (Map.Entry<String, Long> speedRange : carsWithinTheSpeed.entrySet()) {
+            row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(speedRange.getKey());
+            row.createCell(1).setCellValue(speedRange.getValue());
+        }
     }
 
     /**
@@ -68,11 +297,11 @@ public class ExcelUtils {
      * @param allBelts           Lista wszystkich pasów drogowych, z których zczytujemy wyniki
      * @param weatherConditions  Lista warunków pogodowych jakie panowały na drodze podczas symulacji
      * @param simulationDuration Czas trwania symulacji w sekundach
-     * @param workbook           Workbook excelowy, do którego zapisujemy arkusz
+     * @param dataWorkbook       Workbook excelowy, do którego zapisujemy arkusz
      */
     private static void exportCarsSimulationTimeAndWeather(List<TrafficBelt> allBelts, List<WeatherEnum> weatherConditions,
-                                                           long simulationDuration, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("SimulationSummary");
+                                                           long simulationDuration, HSSFWorkbook dataWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("SimulationSummary");
         int rowNum = 0;
         int cellNum = 0;
         HSSFRow row = sheet.createRow(rowNum++);
@@ -95,7 +324,7 @@ public class ExcelUtils {
         row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Cars that left the stage on belts");
         ++rowNum;
-        row = sheet.createRow(rowNum++);
+        sheet.createRow(rowNum++);
         for (TrafficBelt belt : allBelts) {
             cellNum = 0;
             row = sheet.createRow(rowNum++);
@@ -110,11 +339,12 @@ public class ExcelUtils {
      * w danych warunkach pogodowych. Następnie zapisywane jest podsumowanie,
      * w których nie wyszczególniamy pasów drogowych.
      *
-     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportCarsThatLeftDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("CarsLeftTheStageDuringWeather");
+    private static void exportCarsThatLeftDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("CarsLeftTheStageDuringWeather");
+        HSSFSheet chartSheet = chartsWorkbook.createSheet("CarsLeftTheStageDuringWeather");
         int rowNum = 0;
         Map<WeatherEnum, Long> allResultsWithoutBeltsDivision = new HashMap<>();
         for (TrafficBelt belt : allBelts) {
@@ -137,10 +367,15 @@ public class ExcelUtils {
         rowNum += 2;
         HSSFRow row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("Results without belts division:");
+        int charRowNum = 0;
+        chartSheet.createRow(charRowNum++).createCell(0).setCellValue("Samochody, które zakończyły symulację względem pogody");
         for (Map.Entry<WeatherEnum, Long> weatherEnumLongEntry : allResultsWithoutBeltsDivision.entrySet()) {
+            HSSFRow charEntryRow = chartSheet.createRow(charRowNum++);
             HSSFRow entryRow = sheet.createRow(rowNum++);
             int cellNo = 0;
+            charEntryRow.createCell(cellNo).setCellValue(weatherEnumLongEntry.getKey().getPlName());
             entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getKey().toString());
+            charEntryRow.createCell(cellNo).setCellValue(weatherEnumLongEntry.getValue());
             entryRow.createCell(cellNo++).setCellValue(weatherEnumLongEntry.getValue());
         }
     }
@@ -151,11 +386,12 @@ public class ExcelUtils {
      * Funkcja ta dla każdego z pasów i dla każdego z samochodów, zlicza w jakiej pogodzie ile było wypadków na danym pasie i zapisuje te wartości
      * Potem zapisywane jest podsumowanie względem pogody, bez pasów
      *
-     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportCollisions(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("Collisions");
+    private static void exportCollisions(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook, HSSFWorkbook chartsWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("Collisions");
+        HSSFSheet chartsSheet = chartsWorkbook.createSheet("Collisions");
         int rowNum = 0;
         Map<WeatherEnum, Integer> collisionsInWeather = new HashMap<>();
         for (TrafficBelt belt : allBelts) {
@@ -186,15 +422,23 @@ public class ExcelUtils {
                 }
             }
         }
-        rowNum+=2;
+        rowNum += 2;
+        int chartsRowNum = 0;
         sheet.createRow(rowNum++).createCell(0).setCellValue("Summary");
+        chartsSheet.createRow(chartsRowNum++).createCell(0).setCellValue("Liczba kolizji względem pogody");
         if (collisionsInWeather.isEmpty()) {
             sheet.createRow(rowNum++).createCell(0).setCellValue("No collisions detected");
+            HSSFRow chartsRow = chartsSheet.createRow(chartsRowNum++);
+            chartsRow.createCell(0).setCellValue("Brak kolizji");
+            chartsRow.createCell(1).setCellValue(0);
         } else {
             for (Map.Entry<WeatherEnum, Integer> weatherBeltCollisionEntry : collisionsInWeather.entrySet()) {
                 HSSFRow row = sheet.createRow(rowNum++);
+                HSSFRow chartsRow = chartsSheet.createRow(chartsRowNum++);
                 row.createCell(0).setCellValue(weatherBeltCollisionEntry.getKey().name());
                 row.createCell(1).setCellValue(weatherBeltCollisionEntry.getValue());
+                chartsRow.createCell(0).setCellValue(weatherBeltCollisionEntry.getKey().getPlName());
+                chartsRow.createCell(1).setCellValue(weatherBeltCollisionEntry.getValue());
             }
         }
     }
@@ -204,11 +448,11 @@ public class ExcelUtils {
      * Funkcja ta dla każdego z pasów, a następnie dla każdego z samochodów zapisuje pogodę oraz średnią prędkość
      * jaką posiadał samochód w zadanych warunkach pogodowych
      *
-     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportSpeedDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("SpeedForWeather");
+    private static void exportSpeedDuringTheWeather(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("SpeedForWeather");
         int rowNum = 0;
         for (TrafficBelt belt : allBelts) {
             HSSFRow row = sheet.createRow(rowNum++);
@@ -240,18 +484,19 @@ public class ExcelUtils {
      * a następnie sprawdzamy, czy prędkość na danym odcinku przekracza dozwoloną prędkość na trasie (120 km/h).
      * Jeśli tak, to rejestruje zadany przypadek na arkuszu.
      *
-     * @param allBelts Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Wszystkie pasy drogowe, z których możemy zczytać wyniki symulacji
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportOverSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("OverSpeedMeasurements");
+    private static void exportOverSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("OverSpeedMeasurements");
         int rowNum = 0;
         for (TrafficBelt belt : allBelts) {
             HSSFRow row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
             cell.setCellValue(belt.getBeltDirection().toString() + " " + belt.getBeltNumber());
             for (SpeedResult speedResult : belt.getSpeedResults()) {
-                if (NumberUtils.isInteger(speedResult.getRadarSpeed()) && Integer.parseInt(speedResult.getRadarSpeed()) > 120) {
+                if (NumberUtils.isInteger(speedResult.getRadarSpeed()) && Integer.parseInt(speedResult.getRadarSpeed()) > 120
+                    && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
                     HSSFRow speedRow = sheet.createRow(rowNum++);
                     Cell radarSpeedCell = speedRow.createCell(0);
                     Cell radarSpeedValCell = speedRow.createCell(1);
@@ -267,11 +512,11 @@ public class ExcelUtils {
      * Zbiera ona dla wszystkich samochodów wartości pomiarów odcinkowych i zapisuje je na formularzu
      * (z podziałem na pasy)
      *
-     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("SpeedMeasurements");
+    private static void exportSpeedMeasurements(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("SpeedMeasurements");
         int rowNum = 0;
 
         for (TrafficBelt belt : allBelts) {
@@ -283,7 +528,8 @@ public class ExcelUtils {
                 Cell radarSpeedCell = speedRow.createCell(0);
                 Cell radarSpeedValCell = speedRow.createCell(1);
                 radarSpeedCell.setCellValue("RadarMeasuredSpeed:");
-                if (NumberUtils.isInteger(speedResult.getRadarSpeed())) {
+                if (NumberUtils.isInteger(speedResult.getRadarSpeed()) && Integer.parseInt(speedResult.getRadarSpeed()) > 0
+                    && Integer.parseInt(speedResult.getRadarSpeed()) < 300) {
                     radarSpeedValCell.setCellValue(Integer.parseInt(speedResult.getRadarSpeed()));
                 } else {
                     radarSpeedValCell.setCellValue(speedResult.getRadarSpeed());
@@ -297,11 +543,11 @@ public class ExcelUtils {
      * Zadaniem jej jest pobranie ze wszystkich samochodów średnich prędkości przejazdów przez całą przebytą trasę.
      * Prędkości te rejestrowane są z podziałem na pasy drogowe
      *
-     * @param allBelts Lista wszystkich pasów drogowych, z których zczytujemy wyniki
-     * @param workbook Workbook excelowy, do którego zapisujemy arkusz
+     * @param allBelts     Lista wszystkich pasów drogowych, z których zczytujemy wyniki
+     * @param dataWorkbook Workbook excelowy, do którego zapisujemy arkusz
      */
-    private static void exportSpeeds(List<TrafficBelt> allBelts, HSSFWorkbook workbook) {
-        HSSFSheet sheet = workbook.createSheet("AverageSpeedResults");
+    private static void exportSpeeds(List<TrafficBelt> allBelts, HSSFWorkbook dataWorkbook) {
+        HSSFSheet sheet = dataWorkbook.createSheet("AverageSpeedResults");
         int rowNum = 0;
 
         for (TrafficBelt belt : allBelts) {

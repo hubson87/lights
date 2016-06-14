@@ -10,27 +10,27 @@ public enum  WeatherEnum {
     /**
      * Współczynniki pogody słonecznej
      */
-    SUNNY (0, 20, 30, 40, 60, 3.0, 6, "sunny.png"),
+    SUNNY (0, 20, 30, 40, 60, 3.0, 6, "sunny.png", "Słonecznie"),
     /**
      * Współczynniki pogody deszczowej
      */
-    RAINY (1, 10, 20, 40, 40, 2.0, 8, "rainy.png"),
+    RAINY (1, 10, 20, 40, 40, 2.0, 8, "rainy.png", "Desczowo"),
     /**
      * Współczynniki pogody podczas opadów śniegu
      */
-    SNOWY (2, 10, 20, 20, 30, 1.4, 10, "snowy.png"),
+    SNOWY (2, 10, 20, 20, 30, 1.4, 10, "snowy.png", "Śnieg"),
     /**
      * Współczynniki podczas gołoledzi
      */
-    GLAZE (3, 10, 10, 20, 20, 1.3, 30, "glaze.png"),
+    GLAZE (3, 10, 10, 20, 20, 1.3, 30, "glaze.png", "Gołoledź"),
     /**
      * Współczynniki pogody mglistej
      */
-    FOGGY (4, 10, 20, 30, 30, 1.4, 10, "foggy.png"),
+    FOGGY (4, 10, 20, 30, 30, 1.4, 10, "foggy.png", "Mgła"),
     /**
      * Sztuczny twór mówiący o tym, że pogoda ma być zmieniana po kolei z równym czasem, tak aby można było porównać wyniki
      */
-    ALL(-1, 0, 0, 0, 0, 0, 0, "");
+    ALL(-1, 0, 0, 0, 0, 0, 0, "", "");
 
     final int orderNumber;
     /**
@@ -56,6 +56,10 @@ public enum  WeatherEnum {
      */
     final String resourceName;
     /**
+     * Nazwa Polska
+     */
+    final String plName;
+    /**
      * Generator wartości losowych, używany do losowania dynamicznego pogody
      */
     private static final Random random = new Random();
@@ -70,9 +74,10 @@ public enum  WeatherEnum {
      * @param stoppingDistanceFactor Odległość w jakiej pojazd powinien rozpocząć hamowanie
      * @param fasterCarProbabilityOneTo Odwrotnie proporcjonalne prawdopodobieństwo pojawienia się szybszego samochodu dla danej pogody
      * @param resourceFileName Nazwa obrazu wczytywanego jako tablica informatyjna o danej pogodzeie
+     * @param plName Nazwa po polsku do statystyk
      */
     WeatherEnum(int no, int slowerMinFactor, int slowerRandomFactor, int fasterMinFactor, int fasterRandomFactor, double stoppingDistanceFactor,
-                int fasterCarProbabilityOneTo, String resourceFileName) {
+                int fasterCarProbabilityOneTo, String resourceFileName, String plName) {
         this.orderNumber = no;
         this.slowerMinFactor = slowerMinFactor;
         this.slowerRandomFactor = slowerRandomFactor;
@@ -82,6 +87,7 @@ public enum  WeatherEnum {
         this.resourceName = resourceFileName;
         //the bigger this factor will be, the lower probability that the faster car appears
         this.fasterCarProbabilityOneTo = fasterCarProbabilityOneTo;
+        this.plName = plName;
     }
 
     /**
@@ -184,5 +190,13 @@ public enum  WeatherEnum {
      */
     public int getFasterCarProbabilityOneTo() {
         return fasterCarProbabilityOneTo;
+    }
+
+    /**
+     * Getter dla Polskiej nazwy
+     * @return Polska nazwa
+     */
+    public String getPlName() {
+        return plName;
     }
 }
