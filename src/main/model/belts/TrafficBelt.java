@@ -257,6 +257,8 @@ public abstract class TrafficBelt {
                 }
             }
         }
+        //Oznaczamy wszystkie kolizje jakie wystąpiły po zadanej iteracji
+        markCollisionCars();
         //zwracamy listę samochodów do usunięcia ze sceny
         return cleanup();
     }
@@ -325,6 +327,24 @@ public abstract class TrafficBelt {
             }
         }
         return false;
+    }
+
+    private void markCollisionCars() {
+        for (Car car1 : containingCars) {
+            for (Car car2 : containingCars) {
+                if (car1 == car2) {
+                    continue;
+                }
+                if (checkFullCollisionBetweenTwoCars(car1, car2)) {
+                    if (!car1.isInCollision()) {
+                        car1.markCollision();
+                    }
+                    if (!car2.isInCollision()) {
+                        car2.markCollision();
+                    }
+                }
+            }
+        }
     }
 
     /**

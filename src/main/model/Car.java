@@ -94,6 +94,14 @@ public class Car extends ImageView {
      * Statystyki prędkości średnich samochodu z podziałem na warunki pogodowe panujące na scenie
      */
     private Map<WeatherEnum, List<Long>> speedsForWeather;
+    /**
+     * Flaga mówiąca o tym, czy samochód wziął udział w kolizji
+     */
+    private boolean carIsInCollision;
+    /**
+     * Pogoda w której kolizja nastąpiła
+     */
+    private WeatherEnum collisionWeather;
 
     /**
      * Konstruktor obiektu samochodu
@@ -138,6 +146,9 @@ public class Car extends ImageView {
         this.lastWeatherPosition = new Point(beltXPos, beltYPos);
         //Zainicjowanie statystyk prędkości względem pogody
         this.speedsForWeather = new HashMap<>();
+        //Oznaczenie braku kolizji na początku
+        this.carIsInCollision = false;
+        this.collisionWeather = null;
     }
 
     /**
@@ -422,5 +433,19 @@ public class Car extends ImageView {
      */
     public WeatherEnum getCurrentWeather() {
         return currentWeather;
+    }
+
+
+    public boolean isInCollision() {
+        return carIsInCollision;
+    }
+
+    public void markCollision() {
+        carIsInCollision = true;
+        collisionWeather = currentWeather;
+    }
+
+    public WeatherEnum getCollisionWeather() {
+        return collisionWeather;
     }
 }

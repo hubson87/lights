@@ -89,6 +89,7 @@ public class RightTrafficBelt extends TrafficBelt {
 
     /**
      * Metoda znajdująca wszystkie samochody dla danego pasa, które opuściły już scenę.
+     * Dodatkowo zdejmowane są samochody, które zaliczyły kolizję na pasie.
      * Wołana jest funkcja clear, która usuwa je z listy na pasie i woła logikę specyficzną dla samochodu.
      * Następnie zwracana jest lista samochodów do usunięcia ze sceny poprzez kontroler
      * @return Lista samochodów do usunięcia ze sceny poprzez kontroler
@@ -98,6 +99,11 @@ public class RightTrafficBelt extends TrafficBelt {
         List<ImageView> carsViewsToRemove = new ArrayList<>();
         List<Car> carsToRemove = new ArrayList<>();
         containingCars.stream().filter(car -> car.getX() >= beltXEnd).forEach(car -> {
+            carsViewsToRemove.add(car);
+            carsToRemove.add(car);
+            car.carRemoveLogic();
+        });
+        containingCars.stream().filter(car -> car.isInCollision()).forEach(car -> {
             carsViewsToRemove.add(car);
             carsToRemove.add(car);
             car.carRemoveLogic();
